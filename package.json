@@ -27,6 +27,6 @@
 	},
 	"dependencies": {
 		"express": "^4.17.1",
-		"express-fileupload": "^1.2.0"
+		"mongoose": "^5.10.15"
 	}
 }
