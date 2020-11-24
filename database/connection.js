@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 
-const connect = (urlConnection) => {
+const connect = () => {
+	const urlConnection = getUrlConnection()
+
 	mongoose.connect(
 		urlConnection,
 		{
@@ -15,6 +17,17 @@ const connect = (urlConnection) => {
 			console.log('BBDD online')
 		}
 	)
+}
+
+function getUrlConnection() {
+	switch (process.env.NODE_ENV) {
+		case 'dev':
+			return process.env.URL_BBDD_DEV
+		case 'test':
+			return process.env.URL_BBDD_TEST
+		case 'pro':
+			return process.env.URL_BBDD
+	}
 }
 
 module.exports = { connect }
