@@ -14,7 +14,6 @@ const connect = () => {
 			if (error) {
 				throw error
 			}
-			console.log('BBDD online')
 		}
 	)
 }
