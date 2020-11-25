@@ -6,6 +6,6 @@ router.get('/', (req, res) => {
 	res.send('Welcome 🚀')
 })
 
-router.use(users.router)
+router.use('/users', users.router)
 
 module.exports = router

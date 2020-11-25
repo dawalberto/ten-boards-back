@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const User = require('../database/models/user')
 
 const get = (req, res) => {
@@ -15,11 +17,19 @@ const get = (req, res) => {
 }
 
 const post = (req, res) => {
-	const body = req.body
-	let { email, password, name, userName, avatarColor, rol, department } = body
+	let { email, password, name, userName, avatarColor, rol, department } = req.body
+
+	if (!password) {
+		return res.status(400).json({
+			message: 'password cannot be empty',
+		})
+	}
+
+	let hashedPassword = getHashedPassword(password)
+
 	let user = new User({
 		email,
-		password,
+		password: hashedPassword,
 		name,
 		userName,
 		avatarColor,
@@ -39,4 +49,58 @@ const post = (req, res) => {
 	})
 }
 
-module.exports = { get, post }
+const login = (req, res) => {
+	let { email, password } = req.body
+
+	if (!email) {
+		return res.status(400).json({
+			message: 'email cannot be empty',
+		})
+	}
+
+	if (!password) {
+		return res.status(400).json({
+			message: 'password cannot be empty',
+		})
+	}
+
+	password = '' + password
+
+	User.findOne({ email }, (err, userDB) => {
+		if (err) {
+			return res.status(500).json({
+				error: err,
+			})
+		}
+
+		if (!userDB) {
+			return res.status(401).json({
+				message: 'incorrect username or password',
+			})
+		}
+
+		if (!bcrypt.compareSync(password, userDB.password)) {
+			return res.status(401).json({
+				message: 'incorrect username or password',
+			})
+		}
+
+		const user = userDB
+		const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
+			expiresIn: process.env.EXPIRATION_TOKEN,
+		})
+
+		res.json({
+			user,
+			token: accessToken,
+			message: 'user successfully logged in',
+		})
+	})
+}
+
+function getHashedPassword(rawPassword) {
+	let salt = bcrypt.genSaltSync()
+	return bcrypt.hashSync(rawPassword, salt)
+}
+
+module.exports = { get, post, login }
