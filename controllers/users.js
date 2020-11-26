@@ -19,13 +19,7 @@ const get = (req, res) => {
 const post = (req, res) => {
 	let { email, password, name, userName, avatarColor, rol, department } = req.body
 
-	if (!password) {
-		return res.status(400).json({
-			message: 'password cannot be empty',
-		})
-	}
-
-	let hashedPassword = getHashedPassword(password)
+	let hashedPassword = password ? getHashedPassword('' + password) : ''
 
 	let user = new User({
 		email,
@@ -51,18 +45,6 @@ const post = (req, res) => {
 
 const login = (req, res) => {
 	let { email, password } = req.body
-
-	if (!email) {
-		return res.status(400).json({
-			message: 'email cannot be empty',
-		})
-	}
-
-	if (!password) {
-		return res.status(400).json({
-			message: 'password cannot be empty',
-		})
-	}
 
 	password = '' + password
 

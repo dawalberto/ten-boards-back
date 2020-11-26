@@ -5,6 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "NODE_ENV=test mocha",
+		"test:nyan": "NODE_ENV=test mocha --reporter nyan",
+		"test:dot": "NODE_ENV=test mocha --reporter dot",
 		"prettier": "npx prettier --write ."
 	},
 	"repository": {

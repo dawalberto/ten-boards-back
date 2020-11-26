@@ -2,8 +2,8 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
 const expect = chai.expect
-const should = chai.should()
 
+chai.should()
 chai.use(chaiHttp)
 
 describe('/get', () => {
