@@ -6,7 +6,7 @@ const expect = chai.expect
 chai.should()
 chai.use(chaiHttp)
 
-describe('/get', () => {
+describe('/get ✅', () => {
 	it('should return total users and users array', async () => {
 		const response = await chai.request(app).get('/users')
 
@@ -35,6 +35,18 @@ describe('/post ✅', () => {
 		expect(response.statusCode).to.equal(201)
 		response.body.should.have.property('user')
 		response.body.user.should.be.a('object')
+
+		response.body.user.should.have.property('email')
+		response.body.user.email.should.be.a('string')
+		expect(response.body.user.email).to.equal(email)
+
+		response.body.user.should.have.property('name')
+		response.body.user.name.should.be.a('string')
+		expect(response.body.user.name).to.equal(userName)
+
+		response.body.user.should.have.property('userName')
+		response.body.user.userName.should.be.a('string')
+		expect(response.body.user.userName).to.equal(userName)
 	})
 })
 
