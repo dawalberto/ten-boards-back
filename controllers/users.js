@@ -3,11 +3,9 @@ const jwt = require('jsonwebtoken')
 const User = require('../database/models/user')
 
 const get = (req, res) => {
-	User.find((error, usersDB) => {
-		if (error) {
-			return res.status(500).json({
-				error,
-			})
+	User.find((errors, usersDB) => {
+		if (errors) {
+			return res.status(500).json(errors)
 		}
 		res.json({
 			total: usersDB.length,
@@ -31,11 +29,9 @@ const post = (req, res) => {
 		department,
 	})
 
-	user.save((error, userDB) => {
-		if (error) {
-			return res.status(500).json({
-				error,
-			})
+	user.save((errors, userDB) => {
+		if (errors) {
+			return res.status(500).json(errors)
 		}
 		res.status(201).json({
 			user: userDB,
@@ -48,11 +44,9 @@ const login = (req, res) => {
 
 	password = '' + password
 
-	User.findOne({ email }, (err, userDB) => {
-		if (err) {
-			return res.status(500).json({
-				error: err,
-			})
+	User.findOne({ email }, (errors, userDB) => {
+		if (errors) {
+			return res.status(500).json(errors)
 		}
 
 		if (!userDB) {

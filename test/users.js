@@ -18,7 +18,7 @@ describe('/get', () => {
 	})
 })
 
-describe('/post', () => {
+describe('/post ✅', () => {
 	it('should create and return user', async () => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
@@ -35,6 +35,20 @@ describe('/post', () => {
 		expect(response.statusCode).to.equal(201)
 		response.body.should.have.property('user')
 		response.body.user.should.be.a('object')
+	})
+})
+
+describe('/post ❌', () => {
+	it('should return errors object with required properties to create a user', async () => {
+		const user = {}
+		const response = await chai.request(app).post('/users').send(user)
+
+		expect(response.statusCode).to.equal(500)
+		response.body.should.have.property('errors')
+		response.body.errors.should.have.property('email')
+		response.body.errors.should.have.property('password')
+		response.body.errors.should.have.property('name')
+		response.body.errors.should.have.property('userName')
 	})
 })
 
