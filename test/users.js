@@ -6,7 +6,7 @@ const expect = chai.expect
 chai.should()
 chai.use(chaiHttp)
 
-describe('/get ✅', () => {
+describe('/get okey', () => {
 	it('should return total users and users array', async () => {
 		const response = await chai.request(app).get('/users')
 
@@ -18,7 +18,7 @@ describe('/get ✅', () => {
 	})
 })
 
-describe('/post ✅', () => {
+describe('/post okey', () => {
 	it('should create and return user', async () => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
@@ -50,7 +50,7 @@ describe('/post ✅', () => {
 	})
 })
 
-describe('/post ❌', () => {
+describe('/post error', () => {
 	it('should return errors object with required properties to create a user', async () => {
 		const user = {}
 		const response = await chai.request(app).post('/users').send(user)
@@ -64,7 +64,7 @@ describe('/post ❌', () => {
 	})
 })
 
-describe('/login ✅', () => {
+describe('/login okey', () => {
 	it('should login user and return user, token and message', async () => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
@@ -91,7 +91,7 @@ describe('/login ✅', () => {
 	})
 })
 
-describe('/login ❌', () => {
+describe('/login error', () => {
 	it('should return unauthorized code 401 and message', async () => {
 		let email = 'fakeEmail'
 		let password = 'fakePassword'
