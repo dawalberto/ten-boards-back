@@ -7,19 +7,22 @@ chai.should()
 chai.use(chaiHttp)
 
 describe('/get okey', () => {
-	it('should return total users and users array', async () => {
-		const response = await chai.request(app).get('/users')
-
-		expect(response.statusCode).to.equal(200)
-		response.body.should.have.property('total')
-		response.body.should.have.property('users')
-		expect(isNaN(response.body.total)).to.equal(false)
-		expect(Array.isArray(response.body.users)).to.equal(true)
+	it('should return total users and users array', (done) => {
+		chai.request(app)
+			.get('/users')
+			.end((err, res) => {
+				expect(res.statusCode).to.equal(200)
+				res.body.should.have.property('total')
+				res.body.should.have.property('users')
+				expect(isNaN(res.body.total)).to.equal(false)
+				expect(Array.isArray(res.body.users)).to.equal(true)
+				done()
+			})
 	})
 })
 
 describe('/post okey', () => {
-	it('should create and return user', async () => {
+	it('should create and return user', (done) => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
 
@@ -30,42 +33,51 @@ describe('/post okey', () => {
 			userName,
 		}
 
-		const response = await chai.request(app).post('/users').send(user)
+		chai.request(app)
+			.post('/users')
+			.send(user)
+			.end((err, res) => {
+				expect(res.statusCode).to.equal(201)
+				res.body.should.have.property('user')
+				res.body.user.should.be.a('object')
 
-		expect(response.statusCode).to.equal(201)
-		response.body.should.have.property('user')
-		response.body.user.should.be.a('object')
+				res.body.user.should.have.property('email')
+				res.body.user.email.should.be.a('string')
+				expect(res.body.user.email).to.equal(email)
 
-		response.body.user.should.have.property('email')
-		response.body.user.email.should.be.a('string')
-		expect(response.body.user.email).to.equal(email)
+				res.body.user.should.have.property('name')
+				res.body.user.name.should.be.a('string')
+				expect(res.body.user.name).to.equal(userName)
 
-		response.body.user.should.have.property('name')
-		response.body.user.name.should.be.a('string')
-		expect(response.body.user.name).to.equal(userName)
-
-		response.body.user.should.have.property('userName')
-		response.body.user.userName.should.be.a('string')
-		expect(response.body.user.userName).to.equal(userName)
+				res.body.user.should.have.property('userName')
+				res.body.user.userName.should.be.a('string')
+				expect(res.body.user.userName).to.equal(userName)
+				done()
+			})
 	})
 })
 
 describe('/post error', () => {
-	it('should return errors object with required properties to create a user', async () => {
+	it('should return errors object with required properties to create a user', (done) => {
 		const user = {}
-		const response = await chai.request(app).post('/users').send(user)
 
-		expect(response.statusCode).to.equal(500)
-		response.body.should.have.property('errors')
-		response.body.errors.should.have.property('email')
-		response.body.errors.should.have.property('password')
-		response.body.errors.should.have.property('name')
-		response.body.errors.should.have.property('userName')
+		chai.request(app)
+			.post('/users')
+			.send(user)
+			.end((err, res) => {
+				expect(res.statusCode).to.equal(500)
+				res.body.should.have.property('errors')
+				res.body.errors.should.have.property('email')
+				res.body.errors.should.have.property('password')
+				res.body.errors.should.have.property('name')
+				res.body.errors.should.have.property('userName')
+				done()
+			})
 	})
 })
 
 describe('/login okey', () => {
-	it('should login user by email and return user, token and message', async () => {
+	it('should login user by email and return user, token and message', (done) => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
 		let password = 'qwerty'
@@ -77,20 +89,28 @@ describe('/login okey', () => {
 			userName,
 		}
 
-		await chai.request(app).post('/users').send(user)
-		const response = await chai.request(app).post('/users/login').send({ email, password })
-
-		expect(response.statusCode).to.equal(200)
-		response.body.should.have.property('user')
-		response.body.user.should.be.a('object')
-		response.body.should.have.property('token')
-		response.body.token.should.be.a('string')
-		response.body.should.have.property('message')
-		response.body.message.should.be.a('string')
-		expect(response.body.message).to.equal('user successfully logged in')
+		chai.request(app)
+			.post('/users')
+			.send(user)
+			.end(() => {
+				chai.request(app)
+					.post('/users/login')
+					.send({ email, password })
+					.end((err, res) => {
+						expect(res.statusCode).to.equal(200)
+						res.body.should.have.property('user')
+						res.body.user.should.be.a('object')
+						res.body.should.have.property('token')
+						res.body.token.should.be.a('string')
+						res.body.should.have.property('message')
+						res.body.message.should.be.a('string')
+						expect(res.body.message).to.equal('user successfully logged in')
+						done()
+					})
+			})
 	})
 
-	it('should login user by user name and return user, token and message', async () => {
+	it('should login user by user name and return user, token and message', (done) => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
 		let password = 'qwerty'
@@ -102,30 +122,43 @@ describe('/login okey', () => {
 			userName,
 		}
 
-		await chai.request(app).post('/users').send(user)
-		const response = await chai.request(app).post('/users/login').send({ userName, password })
-
-		expect(response.statusCode).to.equal(200)
-		response.body.should.have.property('user')
-		response.body.user.should.be.a('object')
-		response.body.should.have.property('token')
-		response.body.token.should.be.a('string')
-		response.body.should.have.property('message')
-		response.body.message.should.be.a('string')
-		expect(response.body.message).to.equal('user successfully logged in')
+		chai.request(app)
+			.post('/users')
+			.send(user)
+			.end(() => {
+				chai.request(app)
+					.post('/users/login')
+					.send({ userName, password })
+					.end((err, res) => {
+						expect(res.statusCode).to.equal(200)
+						res.body.should.have.property('user')
+						res.body.user.should.be.a('object')
+						res.body.should.have.property('token')
+						res.body.token.should.be.a('string')
+						res.body.should.have.property('message')
+						res.body.message.should.be.a('string')
+						expect(res.body.message).to.equal('user successfully logged in')
+						done()
+					})
+			})
 	})
 })
 
 describe('/login error', () => {
-	it('should return unauthorized code 401 and message', async () => {
+	it('should return unauthorized code 401 and message', (done) => {
 		let email = 'fakeEmail'
 		let password = 'fakePassword'
-		const response = await chai.request(app).post('/users/login').send({ email, password })
 
-		expect(response.statusCode).to.equal(401)
-		response.body.should.have.property('message')
-		response.body.message.should.be.a('string')
-		expect(response.body.message).to.equal('incorrect username or password')
+		chai.request(app)
+			.post('/users/login')
+			.send({ email, password })
+			.end((err, res) => {
+				expect(res.statusCode).to.equal(401)
+				res.body.should.have.property('message')
+				res.body.message.should.be.a('string')
+				expect(res.body.message).to.equal('incorrect username or password')
+				done()
+			})
 	})
 })
 
