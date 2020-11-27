@@ -65,7 +65,7 @@ describe('/post error', () => {
 })
 
 describe('/login okey', () => {
-	it('should login user and return user, token and message', async () => {
+	it('should login user by email and return user, token and message', async () => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
 		let password = 'qwerty'
@@ -79,6 +79,31 @@ describe('/login okey', () => {
 
 		await chai.request(app).post('/users').send(user)
 		const response = await chai.request(app).post('/users/login').send({ email, password })
+
+		expect(response.statusCode).to.equal(200)
+		response.body.should.have.property('user')
+		response.body.user.should.be.a('object')
+		response.body.should.have.property('token')
+		response.body.token.should.be.a('string')
+		response.body.should.have.property('message')
+		response.body.message.should.be.a('string')
+		expect(response.body.message).to.equal('user successfully logged in')
+	})
+
+	it('should login user by user name and return user, token and message', async () => {
+		let email = getRandomEmail()
+		let userName = getRandomUserName()
+		let password = 'qwerty'
+
+		const user = {
+			email,
+			password,
+			name: userName,
+			userName,
+		}
+
+		await chai.request(app).post('/users').send(user)
+		const response = await chai.request(app).post('/users/login').send({ userName, password })
 
 		expect(response.statusCode).to.equal(200)
 		response.body.should.have.property('user')

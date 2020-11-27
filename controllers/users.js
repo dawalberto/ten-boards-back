@@ -42,11 +42,11 @@ const post = async (req, res) => {
 }
 
 const login = (req, res) => {
-	let { email, password } = req.body
+	let { email, userName, password } = req.body
 
 	password = '' + password
 
-	User.findOne({ email }, (errors, userDB) => {
+	User.findOne({ $or: [{ email }, { userName }] }, (errors, userDB) => {
 		if (errors) {
 			return res.status(500).json(errors)
 		}
