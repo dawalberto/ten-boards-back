@@ -30,7 +30,7 @@ const User = new mongoose.Schema({
 		required: true,
 		unique: true,
 	},
-	avatarColor: {
+	avatar: {
 		type: String,
 		required: true,
 		default: '#f39c12',

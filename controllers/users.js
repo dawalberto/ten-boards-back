@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const axios = require('axios')
 const User = require('../database/models/user')
 
 const get = (req, res) => {
@@ -14,17 +15,18 @@ const get = (req, res) => {
 	})
 }
 
-const post = (req, res) => {
-	let { email, password, name, userName, avatarColor, rol, department } = req.body
+const post = async (req, res) => {
+	let { email, password, name, userName, rol, department } = req.body
 
 	let hashedPassword = password ? getHashedPassword('' + password) : ''
+	let avatar = userName ? await getAvatarByUserName(userName) : ''
 
 	let user = new User({
 		email,
 		password: hashedPassword,
 		name,
 		userName,
-		avatarColor,
+		avatar,
 		rol,
 		department,
 	})
@@ -77,6 +79,11 @@ const login = (req, res) => {
 function getHashedPassword(rawPassword) {
 	let salt = bcrypt.genSaltSync()
 	return bcrypt.hashSync(rawPassword, salt)
+}
+
+async function getAvatarByUserName(userName) {
+	const response = await axios.get(`https://api.multiavatar.com/v1/${JSON.stringify(userName)}`)
+	return response.data
 }
 
 module.exports = { get, post, login }
