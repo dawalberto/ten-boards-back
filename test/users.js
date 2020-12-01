@@ -16,21 +16,24 @@ describe('/get okey', () => {
 				res.body.should.have.property('users')
 				expect(isNaN(res.body.total)).to.equal(false)
 				expect(Array.isArray(res.body.users)).to.equal(true)
+
 				done()
 			})
 	})
 })
 
 describe('/post okey', () => {
-	it('should create and return user', (done) => {
+	it('should create and return a valid user with the defined properties on schema', (done) => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
+		let department = ['support', 'ecommerce']
 
 		const user = {
 			email,
 			password: 'qwerty',
 			name: userName,
 			userName,
+			department,
 		}
 
 		chai.request(app)
@@ -39,19 +42,57 @@ describe('/post okey', () => {
 			.end((err, res) => {
 				expect(res.statusCode).to.equal(201)
 				res.body.should.have.property('user')
-				res.body.user.should.be.a('object')
 
-				res.body.user.should.have.property('email')
-				res.body.user.email.should.be.a('string')
-				expect(res.body.user.email).to.equal(email)
+				const user = res.body.user
 
-				res.body.user.should.have.property('name')
-				res.body.user.name.should.be.a('string')
-				expect(res.body.user.name).to.equal(userName)
+				user.should.be.a('object')
+				expect(user).to.include.all.keys(
+					'_id',
+					'email',
+					'userName',
+					'name',
+					'avatar',
+					'rol',
+					'department',
+					'dateAdded',
+					'dateModified'
+				)
 
-				res.body.user.should.have.property('userName')
-				res.body.user.userName.should.be.a('string')
-				expect(res.body.user.userName).to.equal(userName)
+				expect(user.email).to.be.a('string')
+				expect(user.email).to.equal(email)
+				expect(user.email).to.match(
+					/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+				)
+
+				expect(user.userName).to.be.a('string')
+				expect(user.userName).to.equal(userName)
+
+				expect(user.name).to.be.a('string')
+				expect(user.name).to.equal(userName)
+
+				expect(user.rol).to.be.a('string')
+				expect(user.rol).to.satisfy((rol) => {
+					return rol === 'USER' || rol === 'ADMIN'
+				})
+
+				expect(user.department).to.be.an('array')
+				expect([
+					'gid',
+					'ecommerce',
+					'support',
+					'sistems',
+					'administration',
+					'commercial',
+					'itemdoc',
+				]).to.include.members(user.department)
+
+				expect(user.avatar).to.be.a('string')
+				expect(user.avatar).to.include('<svg')
+
+				expect(user._id).to.be.a('string')
+				expect(user.dateAdded).to.be.a('string')
+				expect(user.dateModified).to.be.a('string')
+
 				done()
 			})
 	})
@@ -66,11 +107,10 @@ describe('/post error', () => {
 			.send(user)
 			.end((err, res) => {
 				expect(res.statusCode).to.equal(500)
+
 				res.body.should.have.property('errors')
-				res.body.errors.should.have.property('email')
-				res.body.errors.should.have.property('password')
-				res.body.errors.should.have.property('name')
-				res.body.errors.should.have.property('userName')
+				expect(res.body.errors).to.include.all.keys('email', 'password', 'name', 'userName')
+
 				done()
 			})
 	})
@@ -81,12 +121,14 @@ describe('/login okey', () => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
 		let password = 'qwerty'
+		let department = ['ecommerce']
 
 		const user = {
 			email,
 			password,
 			name: userName,
 			userName,
+			department,
 		}
 
 		chai.request(app)
@@ -98,13 +140,17 @@ describe('/login okey', () => {
 					.send({ email, password })
 					.end((err, res) => {
 						expect(res.statusCode).to.equal(200)
+
 						res.body.should.have.property('user')
 						res.body.user.should.be.a('object')
+
 						res.body.should.have.property('token')
 						res.body.token.should.be.a('string')
+
 						res.body.should.have.property('message')
 						res.body.message.should.be.a('string')
 						expect(res.body.message).to.equal('user successfully logged in')
+
 						done()
 					})
 			})
@@ -114,12 +160,14 @@ describe('/login okey', () => {
 		let email = getRandomEmail()
 		let userName = getRandomUserName()
 		let password = 'qwerty'
+		let department = ['ecommerce']
 
 		const user = {
 			email,
 			password,
 			name: userName,
 			userName,
+			department,
 		}
 
 		chai.request(app)
@@ -131,13 +179,17 @@ describe('/login okey', () => {
 					.send({ userName, password })
 					.end((err, res) => {
 						expect(res.statusCode).to.equal(200)
+
 						res.body.should.have.property('user')
 						res.body.user.should.be.a('object')
+
 						res.body.should.have.property('token')
 						res.body.token.should.be.a('string')
+
 						res.body.should.have.property('message')
 						res.body.message.should.be.a('string')
 						expect(res.body.message).to.equal('user successfully logged in')
+
 						done()
 					})
 			})
@@ -154,9 +206,11 @@ describe('/login error', () => {
 			.send({ email, password })
 			.end((err, res) => {
 				expect(res.statusCode).to.equal(401)
+
 				res.body.should.have.property('message')
 				res.body.message.should.be.a('string')
 				expect(res.body.message).to.equal('incorrect username or password')
+
 				done()
 			})
 	})
