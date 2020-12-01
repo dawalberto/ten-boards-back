@@ -44,6 +44,12 @@ const User = new mongoose.Schema({
 	department: {
 		type: [String],
 		enum: validDepartments,
+		validate: [
+			function () {
+				return this.department.length >= 1
+			},
+			'must assign at least one department',
+		],
 	},
 	dateAdded: {
 		type: Date,
