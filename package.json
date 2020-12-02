@@ -4,7 +4,9 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test": "NODE_ENV=test mocha",
+		"test": "NODE_ENV=test mocha test/tests.js",
+		"test:users": "NODE_ENV=test mocha test/users.js",
+		"test:boards": "NODE_ENV=test mocha test/boards.js",
 		"test:nyan": "NODE_ENV=test mocha --reporter nyan",
 		"test:dot": "NODE_ENV=test mocha --reporter dot",
 		"prettier": "npx prettier --write ."
