@@ -119,80 +119,44 @@ describe('☕️ users', () => {
 
 	describe('/login okey', () => {
 		it('should login user by email and return user, token and message', (done) => {
-			let email = getRandomEmail()
-			let userName = getRandomUserName()
+			let email = 'alberto@test.es'
 			let password = 'qwerty'
-			let department = ['ecommerce']
-
-			const user = {
-				email,
-				password,
-				name: userName,
-				userName,
-				department,
-			}
 
 			chai.request(app)
-				.post('/users')
-				.send(user)
-				.end(() => {
-					chai.request(app)
-						.post('/users/login')
-						.send({ email, password })
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(200)
+				.post('/users/login')
+				.send({ email, password })
+				.end((err, res) => {
+					expect(res.statusCode).to.equal(200)
 
-							res.body.should.have.property('user')
-							res.body.user.should.be.a('object')
+					expect(res.body).to.include.all.keys('user', 'token', 'message')
+					res.body.user.should.be.a('object')
+					res.body.token.should.be.a('string')
+					res.body.message.should.be.a('string')
 
-							res.body.should.have.property('token')
-							res.body.token.should.be.a('string')
+					expect(res.body.message).to.equal('user successfully logged in')
 
-							res.body.should.have.property('message')
-							res.body.message.should.be.a('string')
-							expect(res.body.message).to.equal('user successfully logged in')
-
-							done()
-						})
+					done()
 				})
 		})
 
 		it('should login user by user name and return user, token and message', (done) => {
-			let email = getRandomEmail()
-			let userName = getRandomUserName()
+			let userName = 'GH'
 			let password = 'qwerty'
-			let department = ['ecommerce']
-
-			const user = {
-				email,
-				password,
-				name: userName,
-				userName,
-				department,
-			}
 
 			chai.request(app)
-				.post('/users')
-				.send(user)
-				.end(() => {
-					chai.request(app)
-						.post('/users/login')
-						.send({ userName, password })
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(200)
+				.post('/users/login')
+				.send({ userName, password })
+				.end((err, res) => {
+					expect(res.statusCode).to.equal(200)
 
-							res.body.should.have.property('user')
-							res.body.user.should.be.a('object')
+					expect(res.body).to.include.all.keys('user', 'token', 'message')
+					res.body.user.should.be.a('object')
+					res.body.token.should.be.a('string')
+					res.body.message.should.be.a('string')
 
-							res.body.should.have.property('token')
-							res.body.token.should.be.a('string')
+					expect(res.body.message).to.equal('user successfully logged in')
 
-							res.body.should.have.property('message')
-							res.body.message.should.be.a('string')
-							expect(res.body.message).to.equal('user successfully logged in')
-
-							done()
-						})
+					done()
 				})
 		})
 	})

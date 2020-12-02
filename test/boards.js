@@ -8,10 +8,10 @@ chai.use(chaiHttp)
 
 describe('☕️ boards', () => {
 	describe('/get okey', () => {
-		it('should get the total number of boards and an array of boards the logged user belongs to.', (done) => {
+		it('should get the total number of boards and an array of boards in which the user participates.', (done) => {
 			chai.request(app)
 				.post('/users/login')
-				.send({ email: 'alberto@alberto.es', password: 'qwerty' })
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((err, res) => {
 					const token = res.body.token
 
@@ -32,10 +32,10 @@ describe('☕️ boards', () => {
 	})
 
 	describe('/post okey', () => {
-		it('should create board and return http code 201', (done) => {
+		it('should create board and return it', (done) => {
 			chai.request(app)
 				.post('/users/login')
-				.send({ email: 'alberto@alberto.es', password: 'qwerty' })
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((err, res) => {
 					const token = res.body.token
 					const board = {
