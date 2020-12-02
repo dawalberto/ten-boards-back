@@ -8,7 +8,7 @@ chai.use(chaiHttp)
 
 describe('☕️ boards', () => {
 	describe('/get okey', () => {
-		it('It should get the total number of boards and an array of boards the logged user belongs to.', () => {
+		it('should get the total number of boards and an array of boards the logged user belongs to.', (done) => {
 			chai.request(app)
 				.post('/users/login')
 				.send({ email: 'alberto@alberto.es', password: 'qwerty' })
@@ -27,13 +27,12 @@ describe('☕️ boards', () => {
 
 							done()
 						})
-					done()
 				})
 		})
 	})
 
 	describe('/post okey', () => {
-		it('should create board and return http code 201', () => {
+		it('should create board and return http code 201', (done) => {
 			chai.request(app)
 				.post('/users/login')
 				.send({ email: 'alberto@alberto.es', password: 'qwerty' })
@@ -45,10 +44,6 @@ describe('☕️ boards', () => {
 						totalTime: 0,
 						public: false,
 						finished: false,
-						user: '5fc7f2378882b116e9e37236',
-						dateAdded: new Date(),
-						dateUpdated: new Date(),
-						members: ['5fc7f2378882b116e9e37236'],
 						background: '#00a8ff',
 					}
 
@@ -60,7 +55,6 @@ describe('☕️ boards', () => {
 							expect(res.statusCode).to.equal(201)
 							done()
 						})
-					done()
 				})
 		})
 	})
