@@ -25,6 +25,10 @@ describe('☕️ boards', () => {
 							expect(isNaN(res.body.total)).to.equal(false)
 							expect(Array.isArray(res.body.boards)).to.equal(true)
 
+							if (res.body.boards.length !== 0) {
+								validBoard(res.body.boards[0])
+							}
+
 							done()
 						})
 				})
@@ -53,9 +57,29 @@ describe('☕️ boards', () => {
 						.send(board)
 						.end((err, res) => {
 							expect(res.statusCode).to.equal(201)
+							res.body.should.have.property('board')
+							res.body.board.should.be.a('object')
+							validBoard(res.body.board)
+
 							done()
 						})
 				})
 		})
 	})
 })
+
+function validBoard(board) {
+	expect(board).to.include.all.keys(
+		'totalTime',
+		'public',
+		'finished',
+		'members',
+		'_id',
+		'title',
+		'description',
+		'user',
+		'dateAdded',
+		'background',
+		'dateModified'
+	)
+}
