@@ -10,19 +10,26 @@ describe('☕️ users', () => {
 	describe('/get okey', () => {
 		it('should return total users and users array', (done) => {
 			chai.request(app)
-				.get('/users')
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((err, res) => {
-					expect(res.statusCode).to.equal(200)
-					res.body.should.have.property('total')
-					res.body.should.have.property('users')
-					expect(isNaN(res.body.total)).to.equal(false)
-					expect(Array.isArray(res.body.users)).to.equal(true)
+					const token = res.body.token
+					chai.request(app)
+						.get('/users')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(200)
+							res.body.should.have.property('total')
+							res.body.should.have.property('users')
+							expect(isNaN(res.body.total)).to.equal(false)
+							expect(Array.isArray(res.body.users)).to.equal(true)
 
-					if (res.body.users.length !== 0) {
-						validUser(res.body.users[0])
-					}
+							if (res.body.users.length !== 0) {
+								validUser(res.body.users[0])
+							}
 
-					done()
+							done()
+						})
 				})
 		})
 	})
