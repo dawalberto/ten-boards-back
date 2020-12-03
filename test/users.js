@@ -7,7 +7,7 @@ chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ users', () => {
-	describe('/get okey', () => {
+	describe('GET /users okey', () => {
 		it('should return total users and users array', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -34,7 +34,7 @@ describe('☕️ users', () => {
 		})
 	})
 
-	describe('/post okey', () => {
+	describe('POST /users okey', () => {
 		it('should create and return a valid user with the defined properties on schema', function (done) {
 			let email = getRandomEmail()
 			let userName = getRandomUserName()
@@ -69,7 +69,7 @@ describe('☕️ users', () => {
 		})
 	})
 
-	describe('/post error', () => {
+	describe('POST /users error', () => {
 		it('should return errors object with required properties to create a user', (done) => {
 			const user = {}
 
@@ -87,7 +87,7 @@ describe('☕️ users', () => {
 		})
 	})
 
-	describe('/login okey', () => {
+	describe('POST /users/login okey', () => {
 		it('should login user by email and return user, token and message', (done) => {
 			let email = 'alberto@test.es'
 			let password = 'qwerty'
@@ -129,7 +129,7 @@ describe('☕️ users', () => {
 		})
 	})
 
-	describe('/login error', () => {
+	describe('POST /users/login error', () => {
 		it('should return unauthorized code 401 and message', (done) => {
 			let email = 'fakeEmail'
 			let password = 'fakePassword'

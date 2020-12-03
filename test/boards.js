@@ -7,7 +7,7 @@ chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ boards', () => {
-	describe('/get okey', () => {
+	describe('GET /boards okey', () => {
 		it('should get the total number of boards and an array of boards in which the user participates.', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -35,7 +35,7 @@ describe('☕️ boards', () => {
 		})
 	})
 
-	describe('/get/:id okey', () => {
+	describe('GET /boards/:id okey', () => {
 		it('should get the board with id passed only if user belongs to this board.', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -57,7 +57,7 @@ describe('☕️ boards', () => {
 		})
 	})
 
-	describe('/get/:id error unauthorized', () => {
+	describe('GET /boards/:id error unauthorized', () => {
 		it('should get unoauthorized code 401 and message that says that.', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -79,7 +79,7 @@ describe('☕️ boards', () => {
 		})
 	})
 
-	describe('/get/:id error no boards found', () => {
+	describe('GET /boards/:id error no boards found', () => {
 		it('should get the board with id passed only if user belongs to this board.', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -99,7 +99,7 @@ describe('☕️ boards', () => {
 		})
 	})
 
-	describe('/post okey', () => {
+	describe('POST /boards okey', () => {
 		it('should create board and return it', (done) => {
 			chai.request(app)
 				.post('/users/login')
