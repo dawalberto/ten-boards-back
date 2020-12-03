@@ -35,6 +35,70 @@ describe('☕️ boards', () => {
 		})
 	})
 
+	describe('/get/:id okey', () => {
+		it('should get the board with id passed only if user belongs to this board.', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.get('/boards/5fc811770d953d222c2aef92')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(200)
+							res.body.should.have.property('board')
+							validBoard(res.body.board)
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('/get/:id error unauthorized', () => {
+		it('should get unoauthorized code 401 and message that says that.', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.get('/boards/5fc811de07c54822a1096202')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(401)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('you do not belong to this board')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('/get/:id error no boards found', () => {
+		it('should get the board with id passed only if user belongs to this board.', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.get('/boards/111111111111111111111111')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(204)
+
+							done()
+						})
+				})
+		})
+	})
+
 	describe('/post okey', () => {
 		it('should create board and return it', (done) => {
 			chai.request(app)
@@ -69,6 +133,7 @@ describe('☕️ boards', () => {
 })
 
 function validBoard(board) {
+	board.should.be.a('object')
 	expect(board).to.include.all.keys(
 		'totalTime',
 		'public',

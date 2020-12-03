@@ -19,6 +19,33 @@ const get = (req, res) => {
 	})
 }
 
+const getById = (req, res) => {
+	const idBoard = req.params.id
+	const user = req.user
+
+	Board.findById(idBoard, (error, boardDB) => {
+		if (error) {
+			return res.status(500).json({
+				error,
+			})
+		}
+
+		if (!boardDB) {
+			return res.status(204).send()
+		}
+
+		if (boardDB.user !== user._id && !boardDB.members.includes(user._id)) {
+			return res.status(401).json({
+				message: 'you do not belong to this board',
+			})
+		}
+
+		return res.json({
+			board: boardDB,
+		})
+	})
+}
+
 const post = (req, res) => {
 	let { title, description, totalTime, public, finished, members, background } = req.body
 
@@ -53,4 +80,4 @@ const post = (req, res) => {
 	})
 }
 
-module.exports = { get, post }
+module.exports = { get, getById, post }
