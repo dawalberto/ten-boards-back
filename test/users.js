@@ -18,13 +18,17 @@ describe('☕️ users', () => {
 					expect(isNaN(res.body.total)).to.equal(false)
 					expect(Array.isArray(res.body.users)).to.equal(true)
 
+					if (res.body.users.length !== 0) {
+						validUser(res.body.users[0])
+					}
+
 					done()
 				})
 		})
 	})
 
 	describe('/post okey', () => {
-		it('should create and return a valid user with the defined properties on schema', (done) => {
+		it('should create and return a valid user with the defined properties on schema', function (done) {
 			let email = getRandomEmail()
 			let userName = getRandomUserName()
 			let department = ['support', 'ecommerce']
@@ -37,6 +41,7 @@ describe('☕️ users', () => {
 				department,
 			}
 
+			this.timeout(3000)
 			chai.request(app)
 				.post('/users')
 				.send(user)
@@ -46,53 +51,11 @@ describe('☕️ users', () => {
 
 					const user = res.body.user
 
-					user.should.be.a('object')
-					expect(user).to.include.all.keys(
-						'_id',
-						'email',
-						'userName',
-						'name',
-						'avatar',
-						'rol',
-						'department',
-						'dateAdded',
-						'dateModified'
-					)
+					validUser(user)
 
-					expect(user.email).to.be.a('string')
 					expect(user.email).to.equal(email)
-					expect(user.email).to.match(
-						/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
-					)
-
-					expect(user.userName).to.be.a('string')
 					expect(user.userName).to.equal(userName)
-
-					expect(user.name).to.be.a('string')
 					expect(user.name).to.equal(userName)
-
-					expect(user.rol).to.be.a('string')
-					expect(user.rol).to.satisfy((rol) => {
-						return rol === 'USER' || rol === 'ADMIN'
-					})
-
-					expect(user.department).to.be.an('array')
-					expect([
-						'gid',
-						'ecommerce',
-						'support',
-						'sistems',
-						'administration',
-						'commercial',
-						'itemdoc',
-					]).to.include.members(user.department)
-
-					expect(user.avatar).to.be.a('string')
-					expect(user.avatar).to.include('<svg')
-
-					expect(user._id).to.be.a('string')
-					expect(user.dateAdded).to.be.a('string')
-					expect(user.dateModified).to.be.a('string')
 
 					done()
 				})
@@ -127,12 +90,11 @@ describe('☕️ users', () => {
 				.send({ email, password })
 				.end((err, res) => {
 					expect(res.statusCode).to.equal(200)
-
 					expect(res.body).to.include.all.keys('user', 'token', 'message')
-					res.body.user.should.be.a('object')
+
+					validUser(res.body.user)
 					res.body.token.should.be.a('string')
 					res.body.message.should.be.a('string')
-
 					expect(res.body.message).to.equal('user successfully logged in')
 
 					done()
@@ -148,12 +110,11 @@ describe('☕️ users', () => {
 				.send({ userName, password })
 				.end((err, res) => {
 					expect(res.statusCode).to.equal(200)
-
 					expect(res.body).to.include.all.keys('user', 'token', 'message')
-					res.body.user.should.be.a('object')
+
+					validUser(res.body.user)
 					res.body.token.should.be.a('string')
 					res.body.message.should.be.a('string')
-
 					expect(res.body.message).to.equal('user successfully logged in')
 
 					done()
@@ -210,4 +171,39 @@ function getRandomUserName() {
 	}
 
 	return userName
+}
+
+function validUser(user) {
+	user.should.be.a('object')
+	expect(user).to.include.all.keys(
+		'_id',
+		'email',
+		'userName',
+		'name',
+		'avatar',
+		'rol',
+		'department',
+		'dateAdded',
+		'dateModified'
+	)
+
+	expect(user.email).to.be.a('string')
+	expect(user.email).to.match(
+		/(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+	)
+	expect(user.userName).to.be.a('string')
+	expect(user.name).to.be.a('string')
+	expect(user.rol).to.be.a('string')
+	expect(user.rol).to.satisfy((rol) => {
+		return rol === 'USER' || rol === 'ADMIN'
+	})
+	expect(user.department).to.be.an('array')
+	expect(['gid', 'ecommerce', 'support', 'sistems', 'administration', 'commercial', 'itemdoc']).to.include.members(
+		user.department
+	)
+	expect(user.avatar).to.be.a('string')
+	expect(user.avatar).to.include('<svg')
+	expect(user._id).to.be.a('string')
+	expect(user.dateAdded).to.be.a('string')
+	expect(user.dateModified).to.be.a('string')
 }
