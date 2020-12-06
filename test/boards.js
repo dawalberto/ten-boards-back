@@ -2,6 +2,7 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
 const expect = chai.expect
+const Board = require('../database/models/board')
 
 chai.should()
 chai.use(chaiHttp)
@@ -79,7 +80,7 @@ describe('☕️ boards', () => {
 		})
 	})
 
-	describe('GET /boards/:id error no boards found', () => {
+	describe('GET /boards/:id error no board found', () => {
 		it('should get the board with id passed only if user belongs to this board.', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -124,6 +125,38 @@ describe('☕️ boards', () => {
 							res.body.should.have.property('board')
 							res.body.board.should.be.a('object')
 							validBoard(res.body.board)
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /boards/:id okey', () => {
+		before((done) => {
+			Board.updateMany({}, { finished: false }, (error, updated) => {
+				if (error || !updated) {
+					done(error)
+				}
+
+				done()
+			})
+		})
+
+		it('should finish board and return http code 200', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/boards/5fc811770d953d222c2aef92')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(200)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('board finished')
 
 							done()
 						})
