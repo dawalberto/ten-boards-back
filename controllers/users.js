@@ -16,7 +16,7 @@ const get = (req, res) => {
 }
 
 const post = async (req, res) => {
-	let { email, password, name, userName, rol, department } = req.body
+	let { email, password, name, userName, rol, departments } = req.body
 
 	let hashedPassword = password ? getHashedPassword('' + password) : ''
 	let avatar = userName ? await getAvatarByUserName(userName) : ''
@@ -28,7 +28,7 @@ const post = async (req, res) => {
 		userName,
 		avatar,
 		rol,
-		department,
+		departments,
 	})
 
 	user.save((errors, userDB) => {

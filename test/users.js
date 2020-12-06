@@ -38,14 +38,14 @@ describe('☕️ users', () => {
 		it('should create and return a valid user with the defined properties on schema', function (done) {
 			let email = getRandomEmail()
 			let userName = getRandomUserName()
-			let department = ['support', 'ecommerce']
+			let departments = ['support', 'ecommerce']
 
 			const user = {
 				email,
 				password: 'qwerty',
 				name: userName,
 				userName,
-				department,
+				departments,
 			}
 
 			this.timeout(3000)
@@ -189,7 +189,7 @@ function validUser(user) {
 		'name',
 		'avatar',
 		'rol',
-		'department',
+		'departments',
 		'dateAdded',
 		'dateUpdated'
 	)
@@ -204,9 +204,9 @@ function validUser(user) {
 	expect(user.rol).to.satisfy((rol) => {
 		return rol === 'USER' || rol === 'ADMIN'
 	})
-	expect(user.department).to.be.an('array')
+	expect(user.departments).to.be.an('array')
 	expect(['gid', 'ecommerce', 'support', 'sistems', 'administration', 'commercial', 'itemdoc']).to.include.members(
-		user.department
+		user.departments
 	)
 	expect(user.avatar).to.be.a('string')
 	expect(user.avatar).to.include('<svg')
