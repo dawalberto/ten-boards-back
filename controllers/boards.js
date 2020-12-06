@@ -20,10 +20,10 @@ const get = (req, res) => {
 }
 
 const getById = (req, res) => {
-	const idBoard = req.params.id
+	const boardId = req.params.id
 	const user = req.user
 
-	Board.findById(idBoard, (error, boardDB) => {
+	Board.findById(boardId, (error, boardDB) => {
 		if (error) {
 			return res.status(500).json({
 				error,
@@ -31,7 +31,9 @@ const getById = (req, res) => {
 		}
 
 		if (!boardDB) {
-			return res.status(204).send()
+			return res.status(400).json({
+				message: `no board found with id ${boardId}`,
+			})
 		}
 
 		if (boardDB.user !== user._id && !boardDB.members.includes(user._id)) {
@@ -80,4 +82,26 @@ const post = (req, res) => {
 	})
 }
 
-module.exports = { get, getById, post }
+const finishBoardById = (req, res) => {
+	const boardId = req.params.id
+
+	Board.updateOne({ _id: boardId }, { finished: true }, (errors, updated) => {
+		if (errors) {
+			return res.status(500).json({
+				errors,
+			})
+		}
+
+		if (updated && updated.nModified === 0) {
+			return res.status(400).json({
+				message: 'board already finished',
+			})
+		}
+
+		return res.status(200).json({
+			message: 'board finished',
+		})
+	})
+}
+
+module.exports = { get, getById, post, finishBoardById }

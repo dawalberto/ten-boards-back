@@ -91,7 +91,7 @@ describe('☕️ boards', () => {
 						.get('/boards/111111111111111111111111')
 						.set('token', token)
 						.end((err, res) => {
-							expect(res.statusCode).to.equal(204)
+							expect(res.statusCode).to.equal(400)
 
 							done()
 						})
@@ -124,6 +124,72 @@ describe('☕️ boards', () => {
 							res.body.should.have.property('board')
 							res.body.board.should.be.a('object')
 							validBoard(res.body.board)
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /boards/:id error already finished', () => {
+		it('should return http code 400', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/boards/5fc811770d953d222c2aef92')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(400)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('board already finished')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /boards/:id error unauthorized', () => {
+		it('should return http code 401', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/boards/5fc811de07c54822a1096202')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(401)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('only the owner can finish the board')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /boards/:id error no board found', () => {
+		it('should return http code 400', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/boards/111111111111111111111111')
+						.set('token', token)
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(400)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('no board found with id 111111111111111111111111')
 
 							done()
 						})
