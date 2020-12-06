@@ -191,7 +191,7 @@ function validUser(user) {
 		'rol',
 		'department',
 		'dateAdded',
-		'dateModified'
+		'dateUpdated'
 	)
 
 	expect(user.email).to.be.a('string')
@@ -212,5 +212,5 @@ function validUser(user) {
 	expect(user.avatar).to.include('<svg')
 	expect(user._id).to.be.a('string')
 	expect(user.dateAdded).to.be.a('string')
-	expect(user.dateModified).to.be.a('string')
+	expect(user.dateUpdated).to.be.a('string')
 }

@@ -244,6 +244,6 @@ function validBoard(board) {
 		'user',
 		'dateAdded',
 		'background',
-		'dateModified'
+		'dateUpdated'
 	)
 }
