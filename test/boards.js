@@ -246,4 +246,17 @@ function validBoard(board) {
 		'background',
 		'dateUpdated'
 	)
+
+	expect(board.totalTime).to.be.a('number')
+	expect(board.public).to.be.a('boolean')
+	expect(board.finished).to.be.a('boolean')
+	expect(board.members).to.be.a('array')
+	expect([...board.members]).to.include(board.user)
+	expect(board._id).to.be.a('string')
+	expect(board.title).to.be.a('string')
+	expect(board.description).to.be.a('string')
+	expect(board.user).to.be.a('string')
+	expect(board.dateAdded).to.be.a('string')
+	expect(board.background).to.be.a('string')
+	expect(board.dateUpdated).to.be.a('string')
 }
