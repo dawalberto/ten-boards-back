@@ -1,3 +1,4 @@
+const nameGenerator = require('project-name-generator')
 const chai = require('chai')
 const expect = chai.expect
 chai.should()
@@ -11,4 +12,8 @@ function correctErrorTokenNotProvided(reponse) {
 	expect(reponse.body.error.message).to.equal('jwt must be provided')
 }
 
-module.exports = { correctErrorTokenNotProvided }
+function randomTitle() {
+	return nameGenerator({ words: 3 }).spaced
+}
+
+module.exports = { correctErrorTokenNotProvided, randomTitle }

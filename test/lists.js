@@ -1,7 +1,7 @@
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
-const { correctErrorTokenNotProvided } = require('./generics')
+const { correctErrorTokenNotProvided, randomTitle } = require('./generics')
 const expect = chai.expect
 
 chai.should()
@@ -18,6 +18,33 @@ describe('☕️ lists', () => {
 						.post('/lists')
 						.end((error, res) => {
 							correctErrorTokenNotProvided(res)
+							done()
+						})
+				})
+		})
+	})
+
+	describe('POST /lists error unauthorized', () => {
+		it('should return http code error 401 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+					const list = {
+						title: 'TO DO',
+						board: '5fc811de07c54822a1096202',
+					}
+
+					chai.request(app)
+						.post('/lists')
+						.set('token', token)
+						.send(list)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(401)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('you do not belong to this board')
+
 							done()
 						})
 				})
@@ -71,33 +98,6 @@ describe('☕️ lists', () => {
 		})
 	})
 
-	describe('POST /lists error unauthorized', () => {
-		it('should return http code error 401 and an message', (done) => {
-			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
-				.end((error, res) => {
-					const token = res.body.token
-					const list = {
-						title: 'TO DO',
-						board: '5fc811de07c54822a1096202',
-					}
-
-					chai.request(app)
-						.post('/lists')
-						.set('token', token)
-						.send(list)
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(401)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('you do not belong to this board')
-
-							done()
-						})
-				})
-		})
-	})
-
 	describe('POST /lists error board not found', () => {
 		it('should return http code error 500 and an message', (done) => {
 			chai.request(app)
@@ -132,8 +132,10 @@ describe('☕️ lists', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
+					const title = randomTitle()
+
 					const list = {
-						title: 'TO DO',
+						title,
 						board: '5fc811770d953d222c2aef92',
 					}
 
@@ -168,7 +170,36 @@ describe('☕️ lists', () => {
 		})
 	})
 
-	describe('PUT /lists/:id error board not found', () => {
+	describe('PUT /lists/:id error unauthorized', () => {
+		it('should return http code error 401 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+					const title = randomTitle()
+
+					const list = {
+						title,
+						board: '5fc811de07c54822a1096202',
+					}
+
+					chai.request(app)
+						.put('/lists/5fcf4ca31444ec0b4ea6d3b8')
+						.set('token', token)
+						.send(list)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(401)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('you do not belong to this board')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('PUT /lists/:id error list not found', () => {
 		it('should return http code error 500 and an message', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -177,13 +208,13 @@ describe('☕️ lists', () => {
 					const token = res.body.token
 
 					chai.request(app)
-						.put('/lists/5fcf4c4d17be6f0b17f4403f')
+						.put('/lists/111111111111111111111111')
 						.set('token', token)
 						.send({})
 						.end((error, res) => {
 							expect(res.statusCode).to.be.equal(500)
 							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no board found with id undefined')
+							expect(res.body.message).to.equal('no list found with id 111111111111111111111111')
 
 							done()
 						})
@@ -202,7 +233,7 @@ describe('☕️ lists', () => {
 					chai.request(app)
 						.put('/lists/5fcf4c4d17be6f0b17f4403f')
 						.set('token', token)
-						.send({ board: '5fc811770d953d222c2aef92' })
+						.send({})
 						.end((error, res) => {
 							expect(res.statusCode).to.be.equal(500)
 							res.body.should.have.property('errors')
@@ -215,17 +246,17 @@ describe('☕️ lists', () => {
 	})
 
 	describe('PUT /lists/:id okey', () => {
-		it('should return http code 200 and list object updated', (done) => {
+		it('should return http code 200 and message', (done) => {
 			chai.request(app)
 				.post('/users/login')
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
+					const title = randomTitle()
+
 					const list = {
-						board: '5fc811770d953d222c2aef92',
-						title: 'UPDATED LIST ✅',
+						title,
 						color: '#e056fd',
-						dateUpdated: new Date(),
 					}
 
 					chai.request(app)
@@ -234,7 +265,8 @@ describe('☕️ lists', () => {
 						.send(list)
 						.end((error, res) => {
 							expect(res.statusCode).to.be.equal(200)
-							validList(res.body.list, list)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('list updated')
 
 							done()
 						})
@@ -255,9 +287,7 @@ function validList(list, expectedList) {
 	expect(list.dateUpdated).to.be.a('string')
 
 	if (expectedList) {
-		expect(list.board).to.equal(expectedList.board)
 		expect(list.title).to.equal(expectedList.title)
 		expect(list.color).to.equal(expectedList.color)
-		expect(list.dateUpdated).to.equal(expectedList.dateUpdated)
 	}
 }

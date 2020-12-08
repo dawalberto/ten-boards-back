@@ -27,7 +27,7 @@ const verifyUserOwnerBoard = (req, res, next) => {
 	})
 }
 
-const verifyUserBelongsBoard = (req, res, next) => {
+const verifyUserBelongsBoardByBoard = (req, res, next) => {
 	const userId = req.user._id
 	const boardId = req.body.board || req.params.id
 
@@ -54,4 +54,4 @@ const verifyUserBelongsBoard = (req, res, next) => {
 	})
 }
 
-module.exports = { verifyUserOwnerBoard, verifyUserBelongsBoard }
+module.exports = { verifyUserOwnerBoard, verifyUserBelongsBoardByBoard }
