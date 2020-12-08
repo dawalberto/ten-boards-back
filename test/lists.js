@@ -57,6 +57,33 @@ describe('☕️ lists', () => {
 		})
 	})
 
+	describe('POST /lists error board not found', () => {
+		it('should return http code error 500 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+					const list = {
+						title: 'TO DO',
+						board: '111111111111111111111111',
+					}
+
+					chai.request(app)
+						.post('/lists')
+						.set('token', token)
+						.send(list)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(500)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('no board found with id 111111111111111111111111')
+
+							done()
+						})
+				})
+		})
+	})
+
 	describe('POST /lists okey', () => {
 		it('should return http code 201 and list created', (done) => {
 			chai.request(app)
