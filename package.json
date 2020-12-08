@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test": "NODE_ENV=test mocha test/tests.js",
+		"tests": "NODE_ENV=test mocha test/tests.js",
 		"test:nyan": "NODE_ENV=test mocha test/tests.js --reporter nyan",
 		"test:dot": "NODE_ENV=test mocha test/tests.js --reporter dot",
 		"test:users": "NODE_ENV=test mocha test/users.js",

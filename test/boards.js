@@ -92,7 +92,7 @@ describe('☕️ boards', () => {
 						.get('/boards/111111111111111111111111')
 						.set('token', token)
 						.end((err, res) => {
-							expect(res.statusCode).to.equal(400)
+							expect(res.statusCode).to.equal(500)
 
 							done()
 						})
@@ -199,7 +199,7 @@ describe('☕️ boards', () => {
 						.end((err, res) => {
 							expect(res.statusCode).to.equal(401)
 							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('only the owner can finish the board')
+							expect(res.body.message).to.equal('only the owner has permission for this')
 
 							done()
 						})

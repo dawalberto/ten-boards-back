@@ -21,24 +21,11 @@ const get = (req, res) => {
 
 const getById = (req, res) => {
 	const boardId = req.params.id
-	const user = req.user
 
 	Board.findById(boardId, (error, boardDB) => {
 		if (error) {
 			return res.status(500).json({
 				error,
-			})
-		}
-
-		if (!boardDB) {
-			return res.status(400).json({
-				message: `no board found with id ${boardId}`,
-			})
-		}
-
-		if (boardDB.user !== user._id && !boardDB.members.includes(user._id)) {
-			return res.status(401).json({
-				message: 'you do not belong to this board',
 			})
 		}
 

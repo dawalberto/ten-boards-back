@@ -29,7 +29,7 @@ const verifyUserOwnerBoard = (req, res, next) => {
 
 const verifyUserBelongsBoard = (req, res, next) => {
 	const userId = req.user._id
-	const boardId = req.body.board
+	const boardId = req.body.board || req.params.id
 
 	Board.findById(boardId, (errors, boardDB) => {
 		if (errors) {
