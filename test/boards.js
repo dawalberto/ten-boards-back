@@ -123,7 +123,6 @@ describe('☕️ boards', () => {
 						.end((err, res) => {
 							expect(res.statusCode).to.equal(201)
 							res.body.should.have.property('board')
-							res.body.board.should.be.a('object')
 							validBoard(res.body.board)
 
 							done()
