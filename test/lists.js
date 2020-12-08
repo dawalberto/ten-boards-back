@@ -1,12 +1,29 @@
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
+const { correctErrorTokenNotProvided } = require('./generics')
 const expect = chai.expect
 
 chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ lists', () => {
+	describe('POST /lists error token not provided', () => {
+		it('should get http code 401 and object error.', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					chai.request(app)
+						.post('/lists')
+						.end((error, res) => {
+							correctErrorTokenNotProvided(res)
+							done()
+						})
+				})
+		})
+	})
+
 	describe('POST /lists error required board', () => {
 		it('should return http code error 500 and an message', (done) => {
 			chai.request(app)
