@@ -105,14 +105,7 @@ describe('☕️ users', () => {
 				.end((err, res) => {
 					expect(res.statusCode).to.equal(201)
 					res.body.should.have.property('user')
-
-					const user = res.body.user
-
-					validUser(user)
-
-					expect(user.email).to.equal(email)
-					expect(user.userName).to.equal(userName)
-					expect(user.name).to.equal(userName)
+					validUser(res.body.user, user)
 
 					done()
 				})
@@ -212,7 +205,7 @@ function getRandomUserName() {
 	return userName
 }
 
-function validUser(user) {
+function validUser(user, expectedUser) {
 	user.should.be.a('object')
 	expect(user).to.include.all.keys(
 		'_id',
@@ -245,4 +238,10 @@ function validUser(user) {
 	expect(user._id).to.be.a('string')
 	expect(user.dateAdded).to.be.a('string')
 	expect(user.dateUpdated).to.be.a('string')
+
+	if (expectedUser) {
+		expect(user.email).to.equal(expectedUser.email)
+		expect(user.userName).to.equal(expectedUser.userName)
+		expect(user.name).to.equal(expectedUser.userName)
+	}
 }

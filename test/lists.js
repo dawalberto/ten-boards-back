@@ -63,6 +63,7 @@ describe('☕️ lists', () => {
 							expect(res.statusCode).to.be.equal(500)
 							res.body.should.have.property('errors')
 							res.body.errors.should.be.a('object')
+							res.body.errors.should.have.property('title')
 
 							done()
 						})
@@ -150,9 +151,99 @@ describe('☕️ lists', () => {
 				})
 		})
 	})
+
+	describe('PUT /lists/:id error token not provided', () => {
+		it('should get http code 401 and object error.', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					chai.request(app)
+						.put('/lists/111111111111111111111111')
+						.end((error, res) => {
+							correctErrorTokenNotProvided(res)
+							done()
+						})
+				})
+		})
+	})
+
+	describe('PUT /lists/:id error board not found', () => {
+		it('should return http code error 500 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.put('/lists/5fcf4c4d17be6f0b17f4403f')
+						.set('token', token)
+						.send({})
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(500)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('no board found with id undefined')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('PUT /lists/:id error required fields', () => {
+		it('should return http code error 500 and an errors object list', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.put('/lists/5fcf4c4d17be6f0b17f4403f')
+						.set('token', token)
+						.send({ board: '5fc811770d953d222c2aef92' })
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(500)
+							res.body.should.have.property('errors')
+							res.body.errors.should.be.a('object')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('PUT /lists/:id okey', () => {
+		it('should return http code 200 and list object updated', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+					const list = {
+						board: '5fc811770d953d222c2aef92',
+						title: 'UPDATED LIST ✅',
+						color: '#e056fd',
+						dateUpdated: new Date(),
+					}
+
+					chai.request(app)
+						.put('/lists/5fcf4c4d17be6f0b17f4403f')
+						.set('token', token)
+						.send(list)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(200)
+							validList(res.body.list, list)
+
+							done()
+						})
+				})
+		})
+	})
 })
 
-function validList(list) {
+function validList(list, expectedList) {
 	list.should.be.a('object')
 	expect(list).to.include.all.keys('_id', 'title', 'board', 'color', 'dateAdded', 'dateUpdated')
 
@@ -162,4 +253,11 @@ function validList(list) {
 	expect(list.color).to.be.a('string')
 	expect(list.dateAdded).to.be.a('string')
 	expect(list.dateUpdated).to.be.a('string')
+
+	if (expectedList) {
+		expect(list.board).to.equal(expectedList.board)
+		expect(list.title).to.equal(expectedList.title)
+		expect(list.color).to.equal(expectedList.color)
+		expect(list.dateUpdated).to.equal(expectedList.dateUpdated)
+	}
 }

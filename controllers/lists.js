@@ -11,10 +11,10 @@ const post = (req, res) => {
 		dateUpdated: new Date(),
 	})
 
-	list.save((errors, listDB) => {
-		if (errors) {
+	list.save((err, listDB) => {
+		if (err) {
 			return res.status(500).json({
-				errors,
+				errors: err.errors,
 			})
 		}
 
