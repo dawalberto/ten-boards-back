@@ -56,10 +56,10 @@ const post = (req, res) => {
 		background,
 	})
 
-	board.save((errors, boardDB) => {
-		if (errors) {
+	board.save((err, boardDB) => {
+		if (err) {
 			return res.status(500).json({
-				errors,
+				errors: err.errors,
 			})
 		}
 

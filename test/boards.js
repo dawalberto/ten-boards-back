@@ -153,6 +153,29 @@ describe('☕️ boards', () => {
 		})
 	})
 
+	describe('POST /boards error required fields', () => {
+		it('should return http code 500 and object error with required fields to create a board', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.post('/boards')
+						.set('token', token)
+						.send({})
+						.end((err, res) => {
+							expect(res.statusCode).to.equal(500)
+							res.body.should.have.property('errors')
+							expect(res.body.errors).to.include.all.keys('title', 'description')
+
+							done()
+						})
+				})
+		})
+	})
+
 	describe('POST /boards okey', () => {
 		it('should create board and return it', (done) => {
 			chai.request(app)
