@@ -7,7 +7,7 @@ chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ lists', () => {
-	describe('POST /lists error', () => {
+	describe('POST /lists error required fields', () => {
 		it('should return http code error 500 and an list of required fields to create a list', (done) => {
 			chai.request(app)
 				.post('/users/login')
@@ -23,6 +23,33 @@ describe('☕️ lists', () => {
 							expect(res.statusCode).to.be.equal(500)
 							res.body.should.have.property('errors')
 							expect(res.body.errors).to.include.all.keys('title', 'board')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('POST /lists error unauthorized', () => {
+		it('should return http code error 401 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+					const list = {
+						title: 'TO DO',
+						board: '5fc811de07c54822a1096202',
+					}
+
+					chai.request(app)
+						.post('/lists')
+						.set('token', token)
+						.send(list)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(401)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('you do not belong to this board')
 
 							done()
 						})
