@@ -1,12 +1,29 @@
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
+const { correctErrorTokenNotProvided } = require('./generics')
 const expect = chai.expect
 
 chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ users', () => {
+	describe('GET /users error token not provided', () => {
+		it('should return http code 401 and object error', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((err, res) => {
+					chai.request(app)
+						.get('/users')
+						.end((err, res) => {
+							correctErrorTokenNotProvided(res)
+							done()
+						})
+				})
+		})
+	})
+
 	describe('GET /users okey', () => {
 		it('should return total users and users array', (done) => {
 			chai.request(app)
@@ -30,6 +47,39 @@ describe('☕️ users', () => {
 
 							done()
 						})
+				})
+		})
+	})
+
+	describe('POST /users error token not provided', () => {
+		it('should return http code 401 and object error', (done) => {
+			chai.request(app)
+				.post('/users')
+				.end((err, res) => {
+					chai.request(app)
+						.get('/users')
+						.end((err, res) => {
+							correctErrorTokenNotProvided(res)
+							done()
+						})
+				})
+		})
+	})
+
+	describe('POST /users error', () => {
+		it('should return errors object with required properties to create a user', (done) => {
+			const user = {}
+
+			chai.request(app)
+				.post('/users')
+				.send(user)
+				.end((err, res) => {
+					expect(res.statusCode).to.equal(500)
+
+					res.body.should.have.property('errors')
+					expect(res.body.errors).to.include.all.keys('email', 'password', 'name', 'userName')
+
+					done()
 				})
 		})
 	})
@@ -69,18 +119,20 @@ describe('☕️ users', () => {
 		})
 	})
 
-	describe('POST /users error', () => {
-		it('should return errors object with required properties to create a user', (done) => {
-			const user = {}
+	describe('POST /users/login error', () => {
+		it('should return unauthorized code 401 and message', (done) => {
+			let email = 'fakeEmail'
+			let password = 'fakePassword'
 
 			chai.request(app)
-				.post('/users')
-				.send(user)
+				.post('/users/login')
+				.send({ email, password })
 				.end((err, res) => {
-					expect(res.statusCode).to.equal(500)
+					expect(res.statusCode).to.equal(401)
 
-					res.body.should.have.property('errors')
-					expect(res.body.errors).to.include.all.keys('email', 'password', 'name', 'userName')
+					res.body.should.have.property('message')
+					res.body.message.should.be.a('string')
+					expect(res.body.message).to.equal('incorrect username or password')
 
 					done()
 				})
@@ -123,26 +175,6 @@ describe('☕️ users', () => {
 					res.body.token.should.be.a('string')
 					res.body.message.should.be.a('string')
 					expect(res.body.message).to.equal('user successfully logged in')
-
-					done()
-				})
-		})
-	})
-
-	describe('POST /users/login error', () => {
-		it('should return unauthorized code 401 and message', (done) => {
-			let email = 'fakeEmail'
-			let password = 'fakePassword'
-
-			chai.request(app)
-				.post('/users/login')
-				.send({ email, password })
-				.end((err, res) => {
-					expect(res.statusCode).to.equal(401)
-
-					res.body.should.have.property('message')
-					res.body.message.should.be.a('string')
-					expect(res.body.message).to.equal('incorrect username or password')
 
 					done()
 				})
