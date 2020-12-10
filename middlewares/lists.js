@@ -3,7 +3,7 @@ const Board = require('../database/models/board')
 
 const verifyUserBelongsBoardByList = (req, res, next) => {
 	const userId = req.user._id
-	const listId = req.params.id
+	const listId = req.body.list || req.params.id
 
 	List.findById(listId, (error, listDB) => {
 		if (error) {
