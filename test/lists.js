@@ -273,6 +273,114 @@ describe('☕️ lists', () => {
 				})
 		})
 	})
+
+	describe('DELETE /lists/:id error token not provided', () => {
+		it('should get http code 401 and object error.', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					chai.request(app)
+						.delete('/lists/111111111111111111111111')
+						.end((error, res) => {
+							correctErrorTokenNotProvided(res)
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /lists/:id error unauthorized', () => {
+		it('should return http code error 401 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+					const title = randomTitle()
+
+					const list = {
+						title,
+						board: '5fc811de07c54822a1096202',
+					}
+
+					chai.request(app)
+						.delete('/lists/5fcf4ca31444ec0b4ea6d3b8')
+						.set('token', token)
+						.send(list)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(401)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('you do not belong to this board')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /lists/:id error list not found', () => {
+		it('should return http code error 500 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/lists/111111111111111111111111')
+						.set('token', token)
+						.send({})
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(500)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('no list found with id 111111111111111111111111')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /lists/:id okey', () => {
+		it('should return http code 200 and message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+					const title = randomTitle()
+
+					const list = {
+						title,
+						board: '5fc811770d953d222c2aef92',
+					}
+
+					chai.request(app)
+						.post('/lists')
+						.set('token', token)
+						.send(list)
+						.end((error, res) => {
+							expect(res.statusCode).to.equal(201)
+							res.body.should.have.property('list')
+							validList(res.body.list)
+
+							const listId = res.body.list._id
+
+							chai.request(app)
+								.delete(`/lists/${listId}`)
+								.set('token', token)
+								.end((error, res) => {
+									expect(res.statusCode).to.be.equal(200)
+									res.body.should.have.property('message')
+									expect(res.body.message).to.equal('list deleted')
+
+									done()
+								})
+						})
+				})
+		})
+	})
 })
 
 function validList(list, expectedList) {
