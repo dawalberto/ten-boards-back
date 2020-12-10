@@ -36,7 +36,7 @@ const getById = (req, res) => {
 }
 
 const post = (req, res) => {
-	let { title, description, totalTime, public, finished, members, background } = req.body
+	let { title, description, public, finished, members, background } = req.body
 
 	const user = req.user._id
 	const dateAdded = new Date()
@@ -46,7 +46,6 @@ const post = (req, res) => {
 	let board = new Board({
 		title,
 		description,
-		totalTime,
 		public,
 		finished,
 		user,

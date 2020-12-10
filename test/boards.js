@@ -2,7 +2,7 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
 const Board = require('../database/models/board')
-const { correctErrorTokenNotProvided } = require('./generics')
+const { correctErrorTokenNotProvided, randomTitle } = require('./generics')
 const expect = chai.expect
 
 chai.should()
@@ -183,10 +183,11 @@ describe('☕️ boards', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((err, res) => {
 					const token = res.body.token
+					const title = randomTitle()
+
 					const board = {
-						title: 'fake board',
+						title,
 						description: 'fake board for test purpose',
-						totalTime: 0,
 						public: false,
 						finished: false,
 						background: '#00a8ff',
@@ -199,7 +200,7 @@ describe('☕️ boards', () => {
 						.end((err, res) => {
 							expect(res.statusCode).to.equal(201)
 							res.body.should.have.property('board')
-							validBoard(res.body.board)
+							validBoard(res.body.board, board)
 
 							done()
 						})
@@ -324,7 +325,7 @@ describe('☕️ boards', () => {
 	})
 })
 
-function validBoard(board) {
+function validBoard(board, expectedBoard) {
 	board.should.be.a('object')
 	expect(board).to.include.all.keys(
 		'totalTime',
@@ -341,6 +342,7 @@ function validBoard(board) {
 	)
 
 	expect(board.totalTime).to.be.a('number')
+	expect(board.totalTime).to.equal(0)
 	expect(board.public).to.be.a('boolean')
 	expect(board.finished).to.be.a('boolean')
 	expect(board.members).to.be.a('array')
@@ -352,4 +354,12 @@ function validBoard(board) {
 	expect(board.dateAdded).to.be.a('string')
 	expect(board.background).to.be.a('string')
 	expect(board.dateUpdated).to.be.a('string')
+
+	if (expectedBoard) {
+		expect(board.title).to.equal(expectedBoard.title)
+		expect(board.description).to.equal(expectedBoard.description)
+		expect(board.public).to.equal(expectedBoard.public)
+		expect(board.finished).to.equal(expectedBoard.finished)
+		expect(board.background).to.equal(expectedBoard.background)
+	}
 }
