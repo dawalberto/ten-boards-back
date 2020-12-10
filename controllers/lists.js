@@ -54,4 +54,20 @@ const put = (req, res) => {
 	})
 }
 
-module.exports = { post, put }
+const remove = (req, res) => {
+	const listId = req.params.id
+
+	List.deleteOne({ _id: listId }, (error, deleted) => {
+		if (error) {
+			return res.status(500).json({
+				errors: error.errors,
+			})
+		}
+
+		return res.status(200).json({
+			message: 'list deleted',
+		})
+	})
+}
+
+module.exports = { post, put, remove }
