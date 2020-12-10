@@ -12,8 +12,8 @@ function correctErrorTokenNotProvided(reponse) {
 	expect(reponse.body.error.message).to.equal('jwt must be provided')
 }
 
-function randomTitle() {
-	return nameGenerator({ words: 3 }).spaced
+function getRandomSentence(numWords = 3) {
+	return nameGenerator({ words: numWords }).spaced
 }
 
-module.exports = { correctErrorTokenNotProvided, randomTitle }
+module.exports = { correctErrorTokenNotProvided, getRandomSentence }

@@ -1,7 +1,7 @@
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
-const { correctErrorTokenNotProvided, randomTitle } = require('./generics')
+const { correctErrorTokenNotProvided, getRandomSentence } = require('./generics')
 const expect = chai.expect
 
 chai.should()
@@ -132,7 +132,7 @@ describe('☕️ lists', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
-					const title = randomTitle()
+					const title = getRandomSentence()
 
 					const list = {
 						title,
@@ -177,7 +177,7 @@ describe('☕️ lists', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
-					const title = randomTitle()
+					const title = getRandomSentence()
 
 					const list = {
 						title,
@@ -252,7 +252,7 @@ describe('☕️ lists', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
-					const title = randomTitle()
+					const title = getRandomSentence()
 
 					const list = {
 						title,
@@ -297,7 +297,7 @@ describe('☕️ lists', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
-					const title = randomTitle()
+					const title = getRandomSentence()
 
 					const list = {
 						title,
@@ -349,7 +349,7 @@ describe('☕️ lists', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
-					const title = randomTitle()
+					const title = getRandomSentence()
 
 					const list = {
 						title,

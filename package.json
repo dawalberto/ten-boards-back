@@ -10,6 +10,7 @@
 		"test:users": "NODE_ENV=test mocha test/users.js",
 		"test:boards": "NODE_ENV=test mocha test/boards.js",
 		"test:lists": "NODE_ENV=test mocha test/lists.js",
+		"test:cards": "NODE_ENV=test mocha test/cards.js",
 		"prettier": "npx prettier --write ."
 	},
 	"repository": {

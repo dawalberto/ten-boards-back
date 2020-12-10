@@ -2,7 +2,7 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const app = require('../server/server')
 const Board = require('../database/models/board')
-const { correctErrorTokenNotProvided, randomTitle } = require('./generics')
+const { correctErrorTokenNotProvided, getRandomSentence } = require('./generics')
 const expect = chai.expect
 
 chai.should()
@@ -183,11 +183,12 @@ describe('☕️ boards', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((err, res) => {
 					const token = res.body.token
-					const title = randomTitle()
+					const title = getRandomSentence()
+					const description = getRandomSentence(5)
 
 					const board = {
 						title,
-						description: 'fake board for test purpose',
+						description,
 						public: false,
 						finished: false,
 						background: '#00a8ff',
