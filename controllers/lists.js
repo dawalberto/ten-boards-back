@@ -44,7 +44,7 @@ const put = (req, res) => {
 
 		if (updated && updated.nModified === 0) {
 			return res.status(400).json({
-				message: 'no changes to update',
+				message: 'nothing to update',
 			})
 		}
 

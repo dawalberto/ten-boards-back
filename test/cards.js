@@ -106,7 +106,7 @@ describe('☕️ cards', () => {
 				.end((error, res) => {
 					const token = res.body.token
 					const card = {
-						title: 'TO DO',
+						description: 'TO DO',
 						list: '111111111111111111111111',
 					}
 
@@ -180,7 +180,13 @@ describe('☕️ cards', () => {
 					const card = {
 						description: 'fake description UNAUTH',
 						list: '5fcf4ca31444ec0b4ea6d3b8',
-						labels: [{ color: 'red', value: 'urgent' }],
+						labels: [
+							{
+								color: 'red',
+								value: 'urgent',
+								active: true,
+							},
+						],
 					}
 
 					chai.request(app)
@@ -205,64 +211,20 @@ describe('☕️ cards', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
-
-					chai.request(app)
-						.put('/cards/111111111111111111111111')
-						.set('token', token)
-						.send({})
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(500)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no card found with id 111111111111111111111111')
-
-							done()
-						})
-				})
-		})
-	})
-
-	describe('PUT /cards error nothing to update', () => {
-		it('should return http code error 400 and a message', (done) => {
-			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
-				.end((error, res) => {
-					const token = res.body.token
-
-					chai.request(app)
-						.put('/cards/5fd215ba6c533f18878e6bd0')
-						.set('token', token)
-						.send({})
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(400)
-							expect(res.body.message).to.equal('nothing to update')
-
-							done()
-						})
-				})
-		})
-	})
-
-	describe('PUT /cards error list not found', () => {
-		it('should return http code error 500 and an message', (done) => {
-			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
-				.end((error, res) => {
-					const token = res.body.token
+					const description = getRandomSentence(5)
 					const card = {
-						title: 'TO DO',
-						list: '111111111111111111111111',
+						list: '5fcf4c4d17be6f0b17f4403f',
+						description,
 					}
 
 					chai.request(app)
-						.put('/cards')
+						.put('/cards/111111111111111111111111')
 						.set('token', token)
 						.send(card)
 						.end((error, res) => {
 							expect(res.statusCode).to.be.equal(500)
 							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no list found with id 111111111111111111111111')
+							expect(res.body.message).to.equal('no card found with id 111111111111111111111111')
 
 							done()
 						})
@@ -277,14 +239,29 @@ describe('☕️ cards', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
-					const description = getRandomSentence(5)
 
-					const list = { description }
+					const card = {
+						description: 'TEST AUTH',
+						list: '5fcf4c4d17be6f0b17f4403f',
+						time: 2.5,
+						labels: [
+							{
+								color: 'red',
+								value: 'urgent',
+								active: true,
+							},
+							{
+								color: 'yellow',
+								value: 'check',
+								active: true,
+							},
+						],
+					}
 
 					chai.request(app)
 						.put('/cards/5fd215ba6c533f18878e6bd0')
 						.set('token', token)
-						.send(list)
+						.send(card)
 						.end((error, res) => {
 							expect(res.statusCode).to.equal(200)
 							res.body.should.have.property('message')

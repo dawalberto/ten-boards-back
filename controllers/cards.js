@@ -24,4 +24,37 @@ const post = (req, res) => {
 	})
 }
 
-module.exports = { post }
+const put = (req, res) => {
+	const cardId = req.params.id
+	let { list, description, time, members, labels } = req.body
+	members = members ? [req.user._id, ...members] : [req.user._id]
+
+	const card = {
+		list,
+		description,
+		time,
+		members,
+		labels,
+		dateUpdated: new Date(),
+	}
+
+	Card.updateOne({ _id: cardId }, card, { runValidators: true }, (error, updated) => {
+		if (error) {
+			return res.status(500).json({
+				errors: error.errors,
+			})
+		}
+
+		if (updated && updated.nModified === 0) {
+			return res.status(400).json({
+				message: 'nothing to update',
+			})
+		}
+
+		return res.status(200).json({
+			message: 'card updated',
+		})
+	})
+}
+
+module.exports = { post, put }

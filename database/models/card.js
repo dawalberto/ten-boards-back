@@ -4,26 +4,32 @@ const defaultLabelds = [
 	{
 		color: 'green',
 		value: '',
+		active: false,
 	},
 	{
 		color: 'yellow',
 		value: '',
+		active: false,
 	},
 	{
 		color: 'orange',
 		value: '',
+		active: false,
 	},
 	{
 		color: 'red',
 		value: '',
+		active: false,
 	},
 	{
 		color: 'purple',
 		value: '',
+		active: false,
 	},
 	{
 		color: 'blue',
 		value: '',
+		active: false,
 	},
 ]
 
@@ -39,6 +45,7 @@ const Card = new mongoose.Schema({
 	time: {
 		type: Number,
 		default: 0,
+		required: true,
 	},
 	members: {
 		type: [mongoose.Schema.Types.ObjectId],
@@ -47,6 +54,7 @@ const Card = new mongoose.Schema({
 	labels: {
 		type: [Object],
 		default: defaultLabelds,
+		required: true,
 	},
 	dateAdded: {
 		type: Date,
