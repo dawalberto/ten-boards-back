@@ -38,21 +38,35 @@ const put = (req, res) => {
 		dateUpdated: new Date(),
 	}
 
-	Card.updateOne({ _id: cardId }, card, { runValidators: true }, (error, updated) => {
+	Card.findById(cardId, (error, cardDB) => {
 		if (error) {
 			return res.status(500).json({
 				errors: error.errors,
 			})
 		}
 
-		if (updated && updated.nModified === 0) {
-			return res.status(400).json({
-				message: 'nothing to update',
+		if (!cardDB) {
+			return res.status(500).json({
+				message: `no card found with id ${cardId}`,
 			})
 		}
 
-		return res.status(200).json({
-			message: 'card updated',
+		Card.updateOne({ _id: cardId }, card, { runValidators: true }, (error, updated) => {
+			if (error) {
+				return res.status(500).json({
+					errors: error.errors,
+				})
+			}
+
+			if (updated && updated.nModified === 0) {
+				return res.status(400).json({
+					message: 'nothing to update',
+				})
+			}
+
+			return res.status(200).json({
+				message: 'card updated',
+			})
 		})
 	})
 }

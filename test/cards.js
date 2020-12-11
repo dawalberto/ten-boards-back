@@ -215,6 +215,19 @@ describe('☕️ cards', () => {
 					const card = {
 						list: '5fcf4c4d17be6f0b17f4403f',
 						description,
+						time: 0.75,
+						labels: [
+							{
+								color: 'red',
+								value: 'urgent',
+								active: true,
+							},
+							{
+								color: 'yellow',
+								value: 'check',
+								active: true,
+							},
+						],
 					}
 
 					chai.request(app)
