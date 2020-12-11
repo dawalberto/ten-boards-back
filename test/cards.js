@@ -285,6 +285,88 @@ describe('☕️ cards', () => {
 				})
 		})
 	})
+
+	describe('DELETE /cards/:id error token not provided', () => {
+		it('should get http code 401 and object error.', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					chai.request(app)
+						.delete('/cards/111111111111111111111111')
+						.end((error, res) => {
+							correctErrorTokenNotProvided(res)
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /cards/:id error unauthorized', () => {
+		it('should return http code error 401 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/cards/5fd2156270c259181147d91f')
+						.set('token', token)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(401)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('you do not belong to this board')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /cards/:id error card not found', () => {
+		it('should return http code error 500 and an message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/cards/111111111111111111111111')
+						.set('token', token)
+						.end((error, res) => {
+							expect(res.statusCode).to.be.equal(500)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('no card found with id 111111111111111111111111')
+
+							done()
+						})
+				})
+		})
+	})
+
+	describe('DELETE /cards/:id okey', () => {
+		it('should return http code 200 and message', (done) => {
+			chai.request(app)
+				.post('/users/login')
+				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.end((error, res) => {
+					const token = res.body.token
+
+					chai.request(app)
+						.delete('/cards/5fd215ba6c533f18878e6bd0')
+						.set('token', token)
+						.end((error, res) => {
+							expect(res.statusCode).to.equal(200)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('card deleted')
+
+							done()
+						})
+				})
+		})
+	})
 })
 
 function validCard(card, expectedCard) {
