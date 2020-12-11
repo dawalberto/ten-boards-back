@@ -353,16 +353,33 @@ describe('☕️ cards', () => {
 				.send({ email: 'alberto@test.es', password: 'qwerty' })
 				.end((error, res) => {
 					const token = res.body.token
+					const description = getRandomSentence(5)
+					const card = {
+						description,
+						list: '5fcf4c4d17be6f0b17f4403f',
+					}
 
 					chai.request(app)
-						.delete('/cards/5fd215ba6c533f18878e6bd0')
+						.post('/cards')
 						.set('token', token)
+						.send(card)
 						.end((error, res) => {
-							expect(res.statusCode).to.equal(200)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('card deleted')
+							expect(res.statusCode).to.equal(201)
+							res.body.should.have.property('card')
+							validCard(res.body.card)
 
-							done()
+							const cardId = res.body.card._id
+
+							chai.request(app)
+								.delete(`/cards/${cardId}`)
+								.set('token', token)
+								.end((error, res) => {
+									expect(res.statusCode).to.equal(200)
+									res.body.should.have.property('message')
+									expect(res.body.message).to.equal('card deleted')
+
+									done()
+								})
 						})
 				})
 		})
