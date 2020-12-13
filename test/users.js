@@ -8,6 +8,18 @@ chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ users', () => {
+	let token
+
+	before((done) => {
+		chai.request(app)
+			.post('/users/login')
+			.send({ email: 'alberto@test.es', password: 'qwerty' })
+			.end((err, res) => {
+				token = res.body.token
+				done()
+			})
+	})
+
 	describe('GET /users error token not provided', () => {
 		it('should return http code 401 and object error', (done) => {
 			chai.request(app)
@@ -27,41 +39,20 @@ describe('☕️ users', () => {
 	describe('GET /users okey', () => {
 		it('should return total users and users array', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.get('/users')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
-					chai.request(app)
-						.get('/users')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(200)
-							res.body.should.have.property('total')
-							res.body.should.have.property('users')
-							expect(isNaN(res.body.total)).to.equal(false)
-							expect(Array.isArray(res.body.users)).to.equal(true)
+					expect(res.statusCode).to.equal(200)
+					res.body.should.have.property('total')
+					res.body.should.have.property('users')
+					expect(isNaN(res.body.total)).to.equal(false)
+					expect(Array.isArray(res.body.users)).to.equal(true)
 
-							if (res.body.users.length !== 0) {
-								validUser(res.body.users[0])
-							}
+					if (res.body.users.length !== 0) {
+						validUser(res.body.users[0])
+					}
 
-							done()
-						})
-				})
-		})
-	})
-
-	describe('POST /users error token not provided', () => {
-		it('should return http code 401 and object error', (done) => {
-			chai.request(app)
-				.post('/users')
-				.end((err, res) => {
-					chai.request(app)
-						.get('/users')
-						.end((err, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -75,7 +66,6 @@ describe('☕️ users', () => {
 				.send(user)
 				.end((err, res) => {
 					expect(res.statusCode).to.equal(500)
-
 					res.body.should.have.property('errors')
 					expect(res.body.errors).to.include.all.keys('email', 'password', 'name', 'userName')
 

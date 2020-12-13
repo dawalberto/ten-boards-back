@@ -8,45 +8,46 @@ chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ cards', () => {
+	let token
+
+	before((done) => {
+		chai.request(app)
+			.post('/users/login')
+			.send({ email: 'alberto@test.es', password: 'qwerty' })
+			.end((err, res) => {
+				token = res.body.token
+				done()
+			})
+	})
+
 	describe('POST /cards error token not provided', () => {
 		it('should get http code 401 and object error.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/cards')
 				.end((error, res) => {
-					chai.request(app)
-						.post('/cards')
-						.end((error, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					correctErrorTokenNotProvided(res)
+					done()
 				})
 		})
 	})
 
 	describe('POST /cards error unauthorized', () => {
 		it('should return http code error 401 and an message', (done) => {
+			const card = {
+				description: 'fake description',
+				list: '5fcf4ca31444ec0b4ea6d3b8',
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/cards')
+				.set('token', token)
+				.send(card)
 				.end((error, res) => {
-					const token = res.body.token
-					const card = {
-						description: 'fake description',
-						list: '5fcf4ca31444ec0b4ea6d3b8',
-					}
+					expect(res.statusCode).to.be.equal(401)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('you do not belong to this board')
 
-					chai.request(app)
-						.post('/cards')
-						.set('token', token)
-						.send(card)
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(401)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('you do not belong to this board')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -54,22 +55,15 @@ describe('☕️ cards', () => {
 	describe('POST /cards error required list', () => {
 		it('should return http code error 500 and an message', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/cards')
+				.set('token', token)
+				.send({})
 				.end((error, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.be.equal(500)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('no list found with id undefined')
 
-					chai.request(app)
-						.post('/cards')
-						.set('token', token)
-						.send({})
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(500)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no list found with id undefined')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -77,79 +71,60 @@ describe('☕️ cards', () => {
 	describe('POST /cards error required fields', () => {
 		it('should return http code error 500 and an errors object list', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/cards')
+				.set('token', token)
+				.send({ list: '5fcf4c4d17be6f0b17f4403f' })
 				.end((error, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.be.equal(500)
+					res.body.should.have.property('errors')
+					res.body.errors.should.be.a('object')
+					res.body.errors.should.have.property('description')
 
-					chai.request(app)
-						.post('/cards')
-						.set('token', token)
-						.send({ list: '5fcf4c4d17be6f0b17f4403f' })
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(500)
-							res.body.should.have.property('errors')
-							res.body.errors.should.be.a('object')
-							res.body.errors.should.have.property('description')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
 
 	describe('POST /cards error list not found', () => {
 		it('should return http code error 500 and an message', (done) => {
+			const card = {
+				description: 'TO DO',
+				list: '111111111111111111111111',
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/cards')
+				.set('token', token)
+				.send(card)
 				.end((error, res) => {
-					const token = res.body.token
-					const card = {
-						description: 'TO DO',
-						list: '111111111111111111111111',
-					}
+					expect(res.statusCode).to.be.equal(500)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('no list found with id 111111111111111111111111')
 
-					chai.request(app)
-						.post('/cards')
-						.set('token', token)
-						.send(card)
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(500)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no list found with id 111111111111111111111111')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
 
 	describe('POST /cards okey', () => {
 		it('should return http code 201 and list created', (done) => {
+			const description = getRandomSentence(5)
+
+			const list = {
+				description,
+				list: '5fcf4c4d17be6f0b17f4403f',
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/cards')
+				.set('token', token)
+				.send(list)
 				.end((error, res) => {
-					const token = res.body.token
-					const description = getRandomSentence(5)
+					expect(res.statusCode).to.equal(201)
+					res.body.should.have.property('card')
+					validCard(res.body.card)
 
-					const list = {
-						description,
-						list: '5fcf4c4d17be6f0b17f4403f',
-					}
-
-					chai.request(app)
-						.post('/cards')
-						.set('token', token)
-						.send(list)
-						.end((error, res) => {
-							expect(res.statusCode).to.equal(201)
-							res.body.should.have.property('card')
-							validCard(res.body.card)
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -157,131 +132,107 @@ describe('☕️ cards', () => {
 	describe('PUT /cards/:id error token not provided', () => {
 		it('should get http code 401 and object error.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.put('/cards/111111111111111111111111')
 				.end((error, res) => {
-					chai.request(app)
-						.put('/cards/111111111111111111111111')
-						.end((error, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					correctErrorTokenNotProvided(res)
+					done()
 				})
 		})
 	})
 
 	describe('PUT /cards/:id error unauthorized', () => {
 		it('should return http code error 401 and an message', (done) => {
+			const card = {
+				description: 'fake description UNAUTH',
+				list: '5fcf4ca31444ec0b4ea6d3b8',
+				labels: [
+					{
+						color: 'red',
+						value: 'urgent',
+						active: true,
+					},
+				],
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.put('/cards/5fd2156270c259181147d91f')
+				.set('token', token)
+				.send(card)
 				.end((error, res) => {
-					const token = res.body.token
-					const card = {
-						description: 'fake description UNAUTH',
-						list: '5fcf4ca31444ec0b4ea6d3b8',
-						labels: [
-							{
-								color: 'red',
-								value: 'urgent',
-								active: true,
-							},
-						],
-					}
+					expect(res.statusCode).to.be.equal(401)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('you do not belong to this board')
 
-					chai.request(app)
-						.put('/cards/5fd2156270c259181147d91f')
-						.set('token', token)
-						.send(card)
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(401)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('you do not belong to this board')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
 
 	describe('PUT /cards/:id error card not found', () => {
 		it('should return http code error 500 and an message', (done) => {
+			const description = getRandomSentence(5)
+			const card = {
+				list: '5fcf4c4d17be6f0b17f4403f',
+				description,
+				time: 0.75,
+				labels: [
+					{
+						color: 'red',
+						value: 'urgent',
+						active: true,
+					},
+					{
+						color: 'yellow',
+						value: 'check',
+						active: true,
+					},
+				],
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.put('/cards/111111111111111111111111')
+				.set('token', token)
+				.send(card)
 				.end((error, res) => {
-					const token = res.body.token
-					const description = getRandomSentence(5)
-					const card = {
-						list: '5fcf4c4d17be6f0b17f4403f',
-						description,
-						time: 0.75,
-						labels: [
-							{
-								color: 'red',
-								value: 'urgent',
-								active: true,
-							},
-							{
-								color: 'yellow',
-								value: 'check',
-								active: true,
-							},
-						],
-					}
+					expect(res.statusCode).to.be.equal(500)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('no card found with id 111111111111111111111111')
 
-					chai.request(app)
-						.put('/cards/111111111111111111111111')
-						.set('token', token)
-						.send(card)
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(500)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no card found with id 111111111111111111111111')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
 
 	describe('PUT /cards/:id okey', () => {
 		it('should return http code 200 and message', (done) => {
+			const card = {
+				description: 'TEST AUTH',
+				list: '5fcf4c4d17be6f0b17f4403f',
+				time: 2.5,
+				labels: [
+					{
+						color: 'red',
+						value: 'urgent',
+						active: true,
+					},
+					{
+						color: 'yellow',
+						value: 'check',
+						active: true,
+					},
+				],
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.put('/cards/5fd215ba6c533f18878e6bd0')
+				.set('token', token)
+				.send(card)
 				.end((error, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(200)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('card updated')
 
-					const card = {
-						description: 'TEST AUTH',
-						list: '5fcf4c4d17be6f0b17f4403f',
-						time: 2.5,
-						labels: [
-							{
-								color: 'red',
-								value: 'urgent',
-								active: true,
-							},
-							{
-								color: 'yellow',
-								value: 'check',
-								active: true,
-							},
-						],
-					}
-
-					chai.request(app)
-						.put('/cards/5fd215ba6c533f18878e6bd0')
-						.set('token', token)
-						.send(card)
-						.end((error, res) => {
-							expect(res.statusCode).to.equal(200)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('card updated')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -289,15 +240,10 @@ describe('☕️ cards', () => {
 	describe('DELETE /cards/:id error token not provided', () => {
 		it('should get http code 401 and object error.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/cards/111111111111111111111111')
 				.end((error, res) => {
-					chai.request(app)
-						.delete('/cards/111111111111111111111111')
-						.end((error, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					correctErrorTokenNotProvided(res)
+					done()
 				})
 		})
 	})
@@ -305,21 +251,14 @@ describe('☕️ cards', () => {
 	describe('DELETE /cards/:id error unauthorized', () => {
 		it('should return http code error 401 and an message', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/cards/5fd2156270c259181147d91f')
+				.set('token', token)
 				.end((error, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.be.equal(401)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('you do not belong to this board')
 
-					chai.request(app)
-						.delete('/cards/5fd2156270c259181147d91f')
-						.set('token', token)
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(401)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('you do not belong to this board')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -327,59 +266,46 @@ describe('☕️ cards', () => {
 	describe('DELETE /cards/:id error card not found', () => {
 		it('should return http code error 500 and an message', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/cards/111111111111111111111111')
+				.set('token', token)
 				.end((error, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.be.equal(500)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('no card found with id 111111111111111111111111')
 
-					chai.request(app)
-						.delete('/cards/111111111111111111111111')
-						.set('token', token)
-						.end((error, res) => {
-							expect(res.statusCode).to.be.equal(500)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no card found with id 111111111111111111111111')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
 
 	describe('DELETE /cards/:id okey', () => {
 		it('should return http code 200 and message', (done) => {
+			const description = getRandomSentence(5)
+			const card = {
+				description,
+				list: '5fcf4c4d17be6f0b17f4403f',
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/cards')
+				.set('token', token)
+				.send(card)
 				.end((error, res) => {
-					const token = res.body.token
-					const description = getRandomSentence(5)
-					const card = {
-						description,
-						list: '5fcf4c4d17be6f0b17f4403f',
-					}
+					expect(res.statusCode).to.equal(201)
+					res.body.should.have.property('card')
+					validCard(res.body.card)
+
+					const cardId = res.body.card._id
 
 					chai.request(app)
-						.post('/cards')
+						.delete(`/cards/${cardId}`)
 						.set('token', token)
-						.send(card)
 						.end((error, res) => {
-							expect(res.statusCode).to.equal(201)
-							res.body.should.have.property('card')
-							validCard(res.body.card)
+							expect(res.statusCode).to.equal(200)
+							res.body.should.have.property('message')
+							expect(res.body.message).to.equal('card deleted')
 
-							const cardId = res.body.card._id
-
-							chai.request(app)
-								.delete(`/cards/${cardId}`)
-								.set('token', token)
-								.end((error, res) => {
-									expect(res.statusCode).to.equal(200)
-									res.body.should.have.property('message')
-									expect(res.body.message).to.equal('card deleted')
-
-									done()
-								})
+							done()
 						})
 				})
 		})

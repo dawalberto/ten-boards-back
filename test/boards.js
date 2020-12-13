@@ -9,20 +9,25 @@ chai.should()
 chai.use(chaiHttp)
 
 describe('☕️ boards', () => {
+	let token
+
+	before((done) => {
+		chai.request(app)
+			.post('/users/login')
+			.send({ email: 'alberto@test.es', password: 'qwerty' })
+			.end((err, res) => {
+				token = res.body.token
+				done()
+			})
+	})
+
 	describe('GET /boards error token not provided', () => {
 		it('should get http code 401 and object error.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.get('/boards')
 				.end((err, res) => {
-					const token = res.body.token
-
-					chai.request(app)
-						.get('/boards')
-						.end((err, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					correctErrorTokenNotProvided(res)
+					done()
 				})
 		})
 	})
@@ -30,27 +35,20 @@ describe('☕️ boards', () => {
 	describe('GET /boards okey', () => {
 		it('should get the total number of boards and an array of boards in which the user participates.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.get('/boards')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(200)
+					res.body.should.have.property('total')
+					res.body.should.have.property('boards')
+					expect(isNaN(res.body.total)).to.equal(false)
+					expect(Array.isArray(res.body.boards)).to.equal(true)
 
-					chai.request(app)
-						.get('/boards')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(200)
-							res.body.should.have.property('total')
-							res.body.should.have.property('boards')
-							expect(isNaN(res.body.total)).to.equal(false)
-							expect(Array.isArray(res.body.boards)).to.equal(true)
+					if (res.body.boards.length !== 0) {
+						validBoard(res.body.boards[0])
+					}
 
-							if (res.body.boards.length !== 0) {
-								validBoard(res.body.boards[0])
-							}
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -58,15 +56,10 @@ describe('☕️ boards', () => {
 	describe('GET /boards/:id error token not provided', () => {
 		it('should get http code 401 and object error.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.get('/boards/5fc811770d953d222c2aef92')
 				.end((err, res) => {
-					chai.request(app)
-						.get('/boards/5fc811770d953d222c2aef92')
-						.end((err, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					correctErrorTokenNotProvided(res)
+					done()
 				})
 		})
 	})
@@ -74,21 +67,14 @@ describe('☕️ boards', () => {
 	describe('GET /boards/:id error unauthorized', () => {
 		it('should get unoauthorized code 401 and message that says that.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.get('/boards/5fc811de07c54822a1096202')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(401)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('you do not belong to this board')
 
-					chai.request(app)
-						.get('/boards/5fc811de07c54822a1096202')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(401)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('you do not belong to this board')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -96,19 +82,12 @@ describe('☕️ boards', () => {
 	describe('GET /boards/:id error no board found', () => {
 		it('should get the board with id passed only if user belongs to this board.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.get('/boards/111111111111111111111111')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(500)
 
-					chai.request(app)
-						.get('/boards/111111111111111111111111')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(500)
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -116,21 +95,14 @@ describe('☕️ boards', () => {
 	describe('GET /boards/:id okey', () => {
 		it('should get the board with id passed only if user belongs to this board.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.get('/boards/5fc811770d953d222c2aef92')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(200)
+					res.body.should.have.property('board')
+					validBoard(res.body.board)
 
-					chai.request(app)
-						.get('/boards/5fc811770d953d222c2aef92')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(200)
-							res.body.should.have.property('board')
-							validBoard(res.body.board)
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -138,17 +110,10 @@ describe('☕️ boards', () => {
 	describe('POST /boards error token not provided', () => {
 		it('should get http code 401 and object error.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/boards')
 				.end((err, res) => {
-					const token = res.body.token
-
-					chai.request(app)
-						.post('/boards')
-						.end((err, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					correctErrorTokenNotProvided(res)
+					done()
 				})
 		})
 	})
@@ -156,55 +121,42 @@ describe('☕️ boards', () => {
 	describe('POST /boards error required fields', () => {
 		it('should return http code 500 and object error with required fields to create a board', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/boards')
+				.set('token', token)
+				.send({})
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(500)
+					res.body.should.have.property('errors')
+					expect(res.body.errors).to.include.all.keys('title', 'description')
 
-					chai.request(app)
-						.post('/boards')
-						.set('token', token)
-						.send({})
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(500)
-							res.body.should.have.property('errors')
-							expect(res.body.errors).to.include.all.keys('title', 'description')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
 
 	describe('POST /boards okey', () => {
 		it('should create board and return it', (done) => {
+			const title = getRandomSentence()
+			const description = getRandomSentence(5)
+
+			const board = {
+				title,
+				description,
+				public: false,
+				finished: false,
+				background: '#00a8ff',
+			}
+
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.post('/boards')
+				.set('token', token)
+				.send(board)
 				.end((err, res) => {
-					const token = res.body.token
-					const title = getRandomSentence()
-					const description = getRandomSentence(5)
+					expect(res.statusCode).to.equal(201)
+					res.body.should.have.property('board')
+					validBoard(res.body.board, board)
 
-					const board = {
-						title,
-						description,
-						public: false,
-						finished: false,
-						background: '#00a8ff',
-					}
-
-					chai.request(app)
-						.post('/boards')
-						.set('token', token)
-						.send(board)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(201)
-							res.body.should.have.property('board')
-							validBoard(res.body.board, board)
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -212,17 +164,10 @@ describe('☕️ boards', () => {
 	describe('DELETE /boards/:id error token not provided', () => {
 		it('should get http code 401 and object error.', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/boards/111111111111111111111111')
 				.end((err, res) => {
-					const token = res.body.token
-
-					chai.request(app)
-						.delete('/boards/111111111111111111111111')
-						.end((err, res) => {
-							correctErrorTokenNotProvided(res)
-							done()
-						})
+					correctErrorTokenNotProvided(res)
+					done()
 				})
 		})
 	})
@@ -230,21 +175,14 @@ describe('☕️ boards', () => {
 	describe('DELETE /boards/:id error already finished', () => {
 		it('should return http code 400', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/boards/5fc811770d953d222c2aef92')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(400)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('board already finished')
 
-					chai.request(app)
-						.delete('/boards/5fc811770d953d222c2aef92')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(400)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('board already finished')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -252,21 +190,14 @@ describe('☕️ boards', () => {
 	describe('DELETE /boards/:id error unauthorized', () => {
 		it('should return http code 401', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/boards/5fc811de07c54822a1096202')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(401)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('only the owner has permission for this')
 
-					chai.request(app)
-						.delete('/boards/5fc811de07c54822a1096202')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(401)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('only the owner has permission for this')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -274,21 +205,14 @@ describe('☕️ boards', () => {
 	describe('DELETE /boards/:id error no board found', () => {
 		it('should return http code 400', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/boards/111111111111111111111111')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(400)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('no board found with id 111111111111111111111111')
 
-					chai.request(app)
-						.delete('/boards/111111111111111111111111')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(400)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('no board found with id 111111111111111111111111')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
@@ -306,21 +230,14 @@ describe('☕️ boards', () => {
 
 		it('should finish board and return http code 200', (done) => {
 			chai.request(app)
-				.post('/users/login')
-				.send({ email: 'alberto@test.es', password: 'qwerty' })
+				.delete('/boards/5fc811770d953d222c2aef92')
+				.set('token', token)
 				.end((err, res) => {
-					const token = res.body.token
+					expect(res.statusCode).to.equal(200)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('board finished')
 
-					chai.request(app)
-						.delete('/boards/5fc811770d953d222c2aef92')
-						.set('token', token)
-						.end((err, res) => {
-							expect(res.statusCode).to.equal(200)
-							res.body.should.have.property('message')
-							expect(res.body.message).to.equal('board finished')
-
-							done()
-						})
+					done()
 				})
 		})
 	})
