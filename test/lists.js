@@ -179,22 +179,6 @@ describe('☕️ lists', () => {
 		})
 	})
 
-	describe('PUT /lists/:id error required fields', () => {
-		it('should return http code error 500 and an errors object list', (done) => {
-			chai.request(app)
-				.put('/lists/5fcf4c4d17be6f0b17f4403f')
-				.set('token', token)
-				.send({})
-				.end((error, res) => {
-					expect(res.statusCode).to.be.equal(500)
-					res.body.should.have.property('errors')
-					res.body.errors.should.be.a('object')
-
-					done()
-				})
-		})
-	})
-
 	describe('PUT /lists/:id okey', () => {
 		it('should return http code 200 and message', (done) => {
 			const title = getRandomSentence()

@@ -1,4 +1,5 @@
 const Card = require('../database/models/card')
+const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const post = (req, res) => {
 	let { list, description, members, labels } = req.body
@@ -37,6 +38,7 @@ const put = (req, res) => {
 		labels,
 		dateUpdated: new Date(),
 	}
+	deleteUndefinedPropsOfObject(card)
 
 	Card.findById(cardId, (error, cardDB) => {
 		if (error) {

@@ -1,4 +1,5 @@
 const List = require('../database/models/list')
+const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const post = (req, res) => {
 	const { title, board, color } = req.body
@@ -27,13 +28,13 @@ const post = (req, res) => {
 const put = (req, res) => {
 	const listId = req.params.id
 	let { title, color } = req.body
-	color = color ? color : '#dfe6e9'
 
 	const list = {
 		title,
 		color,
 		dateUpdated: new Date(),
 	}
+	deleteUndefinedPropsOfObject(list)
 
 	List.updateOne({ _id: listId }, list, { runValidators: true }, (error, updated) => {
 		if (error) {
