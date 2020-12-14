@@ -38,15 +38,15 @@ const verifyUserBelongsBoardByBoard = (req, res, next) => {
 			})
 		}
 
-		if (boardDB && boardDB.user !== userId && !boardDB.members.includes(userId)) {
-			return res.status(401).json({
-				message: 'you do not belong to this board',
-			})
-		}
-
 		if (!boardDB) {
 			return res.status(500).json({
 				message: `no board found with id ${boardId}`,
+			})
+		}
+
+		if ('' + boardDB.user !== userId && !boardDB.members.includes(userId)) {
+			return res.status(401).json({
+				message: 'you do not belong to this board',
 			})
 		}
 

@@ -1,6 +1,6 @@
 const deleteUndefinedPropsOfObject = (object) => {
 	for (const [key, value] of Object.entries(object)) {
-		if (!value) {
+		if (value === undefined) {
 			delete object[key]
 		}
 	}

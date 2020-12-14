@@ -1,4 +1,5 @@
 const Board = require('../database/models/board')
+const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const get = (req, res) => {
 	const user = req.user
@@ -68,6 +69,40 @@ const post = (req, res) => {
 	})
 }
 
+const put = (req, res) => {
+	const boardId = req.params.id
+	let { title, description, user, public, members, background } = req.body
+
+	let board = {
+		title,
+		description,
+		user,
+		public,
+		members,
+		background,
+		dateUpdated: new Date(),
+	}
+	deleteUndefinedPropsOfObject(board)
+
+	Board.updateOne({ _id: boardId }, board, (errors, updated) => {
+		if (errors) {
+			return res.status(500).json({
+				errors,
+			})
+		}
+
+		if (updated && updated.nModified === 0) {
+			return res.status(400).json({
+				message: 'nothing to update',
+			})
+		}
+
+		return res.status(200).json({
+			message: 'board updated',
+		})
+	})
+}
+
 const finishBoardById = (req, res) => {
 	const boardId = req.params.id
 
@@ -90,4 +125,4 @@ const finishBoardById = (req, res) => {
 	})
 }
 
-module.exports = { get, getById, post, finishBoardById }
+module.exports = { get, getById, post, put, finishBoardById }
