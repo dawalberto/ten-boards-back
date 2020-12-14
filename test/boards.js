@@ -241,6 +241,74 @@ describe('☕️ boards', () => {
 				})
 		})
 	})
+
+	describe('PUT /boards/:id error token not provided', () => {
+		it('should get http code 401 and object error.', (done) => {
+			chai.request(app)
+				.put('/boards/111111111111111111111111')
+				.end((err, res) => {
+					correctErrorTokenNotProvided(res)
+					done()
+				})
+		})
+	})
+
+	describe('PUT /boards/:id error unauthorized', () => {
+		it('should return http code 401', (done) => {
+			chai.request(app)
+				.put('/boards/5fc811de07c54822a1096202')
+				.set('token', token)
+				.end((err, res) => {
+					expect(res.statusCode).to.equal(401)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('only the owner has permission for this')
+
+					done()
+				})
+		})
+	})
+
+	describe('PUT /boards/:id error no board found', () => {
+		it('should return http code 400', (done) => {
+			chai.request(app)
+				.put('/boards/111111111111111111111111')
+				.set('token', token)
+				.end((err, res) => {
+					expect(res.statusCode).to.equal(400)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('no board found with id 111111111111111111111111')
+
+					done()
+				})
+		})
+	})
+
+	describe('PUT /boards/:id okey', () => {
+		it('should return http code 200 and an message', (done) => {
+			const title = getRandomSentence()
+			const description = getRandomSentence(5)
+
+			const board = {
+				title,
+				description,
+				public: true,
+				members: ['5fc7f2388882b116e9e37238', '5fc7f23a8882b116e9e37239', '111111111111111111111111'],
+				background: '#4bcffa',
+			}
+
+			chai.request(app)
+				.put('/boards/5fc811770d953d222c2aef92')
+				.set('token', token)
+				.send(board)
+				.end((err, res) => {
+					expect(res.statusCode).to.equal(200)
+					res.body.should.have.property('message')
+					expect(res.body.message).to.equal('board updated')
+
+					done()
+				})
+		})
+	})
 })
 
 function validBoard(board, expectedBoard) {
