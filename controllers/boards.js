@@ -1,4 +1,6 @@
 const Board = require('../database/models/board')
+const { getListsFromBoardId } = require('./lists')
+const { getListMembersObject, getUserObject } = require('./users')
 const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const get = (req, res) => {
@@ -23,15 +25,20 @@ const get = (req, res) => {
 const getById = (req, res) => {
 	const boardId = req.params.id
 
-	Board.findById(boardId, (error, boardDB) => {
+	Board.findById(boardId, async (error, boardDB) => {
 		if (error) {
 			return res.status(500).json({
 				error,
 			})
 		}
 
+		const board = boardDB.toObject()
+		board.user = await getUserObject(board.user)
+		board.members = await getListMembersObject(board.members)
+		board.lists = await getListsFromBoardId(board._id)
+
 		return res.json({
-			board: boardDB,
+			board,
 		})
 	})
 }
@@ -42,7 +49,6 @@ const post = (req, res) => {
 	const user = req.user._id
 	const dateAdded = new Date()
 	const dateUpdated = new Date()
-	members = members ? [user, ...members] : [user]
 
 	let board = new Board({
 		title,

@@ -335,7 +335,6 @@ function validBoard(board, expectedBoard) {
 	expect(board._id).to.be.a('string')
 	expect(board.title).to.be.a('string')
 	expect(board.description).to.be.a('string')
-	expect(board.user).to.be.a('string')
 	expect(board.dateAdded).to.be.a('string')
 	expect(board.background).to.be.a('string')
 	expect(board.dateUpdated).to.be.a('string')

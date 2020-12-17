@@ -1,4 +1,5 @@
 const List = require('../database/models/list')
+const { getCardsFromListId } = require('./cards')
 const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const post = (req, res) => {
@@ -71,4 +72,19 @@ const remove = (req, res) => {
 	})
 }
 
-module.exports = { post, put, remove }
+const getListsFromBoardId = async (boardId) => {
+	const listsDB = await List.find({ board: boardId })
+	const lists = []
+
+	listsDB.forEach((list) => {
+		lists.push(list.toObject())
+	})
+
+	for (const list of lists) {
+		list.cards = await getCardsFromListId(list._id)
+	}
+
+	return lists
+}
+
+module.exports = { post, put, remove, getListsFromBoardId }

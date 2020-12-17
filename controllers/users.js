@@ -76,14 +76,27 @@ const login = (req, res) => {
 	})
 }
 
-function getHashedPassword(rawPassword) {
+const getListMembersObject = async (membersId) => {
+	const membersList = []
+	for (const memberId of membersId) {
+		let memberObject = await User.findById(memberId)
+		membersList.push(memberObject)
+	}
+	return membersList
+}
+
+const getUserObject = async (userId) => {
+	return await User.findById(userId)
+}
+
+const getHashedPassword = (rawPassword) => {
 	let salt = bcrypt.genSaltSync()
 	return bcrypt.hashSync(rawPassword, salt)
 }
 
-async function getAvatarByUserName(userName) {
+const getAvatarByUserName = async (userName) => {
 	const response = await axios.get(`https://api.multiavatar.com/v1/${JSON.stringify(userName)}`)
 	return response.data
 }
 
-module.exports = { get, post, login }
+module.exports = { get, post, login, getListMembersObject, getUserObject }

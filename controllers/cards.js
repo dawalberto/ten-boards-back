@@ -89,4 +89,8 @@ const remove = (req, res) => {
 	})
 }
 
-module.exports = { post, put, remove }
+const getCardsFromListId = async (listId) => {
+	return await Card.find({ list: listId })
+}
+
+module.exports = { post, put, remove, getCardsFromListId }
