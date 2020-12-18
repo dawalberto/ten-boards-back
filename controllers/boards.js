@@ -77,13 +77,14 @@ const post = (req, res) => {
 
 const put = (req, res) => {
 	const boardId = req.params.id
-	let { title, description, user, public, members, background } = req.body
+	let { title, description, user, public, finished, members, background } = req.body
 
 	let board = {
 		title,
 		description,
 		user,
 		public,
+		finished,
 		members,
 		background,
 		dateUpdated: new Date(),
@@ -109,26 +110,4 @@ const put = (req, res) => {
 	})
 }
 
-const finishBoardById = (req, res) => {
-	const boardId = req.params.id
-
-	Board.updateOne({ _id: boardId }, { finished: true }, (errors, updated) => {
-		if (errors) {
-			return res.status(500).json({
-				errors,
-			})
-		}
-
-		if (updated && updated.nModified === 0) {
-			return res.status(400).json({
-				message: 'board already finished',
-			})
-		}
-
-		return res.status(200).json({
-			message: 'board finished',
-		})
-	})
-}
-
-module.exports = { get, getById, post, put, finishBoardById }
+module.exports = { get, getById, post, put }
