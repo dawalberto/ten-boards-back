@@ -3,7 +3,6 @@ const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const post = (req, res) => {
 	let { list, description, members, labels } = req.body
-	members = members ? [req.user._id, ...members] : [req.user._id]
 
 	const card = new Card({
 		list,
@@ -28,7 +27,6 @@ const post = (req, res) => {
 const put = (req, res) => {
 	const cardId = req.params.id
 	let { list, description, time, members, labels } = req.body
-	members = members ? [req.user._id, ...members] : [req.user._id]
 
 	const card = {
 		list,
