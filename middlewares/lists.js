@@ -19,6 +19,7 @@ const verifyUserBelongsBoardByList = (req, res, next) => {
 		}
 
 		const boardId = listDB.board
+		req.boardId = boardId
 
 		Board.findById(boardId, (error, boardDB) => {
 			if (error) {
