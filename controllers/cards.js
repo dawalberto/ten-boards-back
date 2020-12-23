@@ -36,7 +36,6 @@ const put = (req, res) => {
 		time,
 		members,
 		labels,
-		dateUpdated: new Date(),
 	}
 	deleteUndefinedPropsOfObject(card)
 

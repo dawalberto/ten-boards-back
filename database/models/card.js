@@ -33,37 +33,32 @@ const defaultLabelds = [
 	},
 ]
 
-const Card = new mongoose.Schema({
-	list: {
-		type: mongoose.Schema.Types.ObjectId,
-		required: true,
+const Card = new mongoose.Schema(
+	{
+		list: {
+			type: mongoose.Schema.Types.ObjectId,
+			required: true,
+		},
+		description: {
+			type: String,
+			required: true,
+		},
+		time: {
+			type: Number,
+			default: 0,
+			required: true,
+		},
+		members: {
+			type: [mongoose.Schema.Types.ObjectId],
+			required: true,
+		},
+		labels: {
+			type: [Object],
+			default: defaultLabelds,
+			required: true,
+		},
 	},
-	description: {
-		type: String,
-		required: true,
-	},
-	time: {
-		type: Number,
-		default: 0,
-		required: true,
-	},
-	members: {
-		type: [mongoose.Schema.Types.ObjectId],
-		required: true,
-	},
-	labels: {
-		type: [Object],
-		default: defaultLabelds,
-		required: true,
-	},
-	dateAdded: {
-		type: Date,
-		default: Date.now,
-	},
-	dateUpdated: {
-		type: Date,
-		default: Date.now,
-	},
-})
+	{ timestamps: true }
+)
 
 module.exports = mongoose.model('Card', Card)

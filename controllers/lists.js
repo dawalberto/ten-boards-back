@@ -9,8 +9,6 @@ const post = (req, res) => {
 		title,
 		board,
 		color,
-		dateAdded: new Date(),
-		dateUpdated: new Date(),
 	})
 
 	list.save((err, listDB) => {
@@ -33,7 +31,6 @@ const put = (req, res) => {
 	const list = {
 		title,
 		color,
-		dateUpdated: new Date(),
 	}
 	deleteUndefinedPropsOfObject(list)
 

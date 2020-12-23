@@ -47,8 +47,6 @@ const post = (req, res) => {
 	let { title, description, public, finished, members, background } = req.body
 
 	const user = req.user._id
-	const dateAdded = new Date()
-	const dateUpdated = new Date()
 
 	let board = new Board({
 		title,
@@ -56,8 +54,6 @@ const post = (req, res) => {
 		public,
 		finished,
 		user,
-		dateAdded,
-		dateUpdated,
 		members,
 		background,
 	})
@@ -87,7 +83,6 @@ const put = (req, res) => {
 		finished,
 		members,
 		background,
-		dateUpdated: new Date(),
 	}
 	deleteUndefinedPropsOfObject(board)
 

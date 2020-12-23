@@ -205,8 +205,8 @@ function validUser(user, expectedUser) {
 		'avatar',
 		'rol',
 		'departments',
-		'dateAdded',
-		'dateUpdated'
+		'createdAt',
+		'updatedAt'
 	)
 
 	expect(user.email).to.be.a('string')
@@ -226,8 +226,8 @@ function validUser(user, expectedUser) {
 	expect(user.avatar).to.be.a('string')
 	expect(user.avatar).to.include('<svg')
 	expect(user._id).to.be.a('string')
-	expect(user.dateAdded).to.be.a('string')
-	expect(user.dateUpdated).to.be.a('string')
+	expect(user.createdAt).to.be.a('string')
+	expect(user.updatedAt).to.be.a('string')
 
 	if (expectedUser) {
 		expect(user.email).to.equal(expectedUser.email)

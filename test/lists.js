@@ -289,14 +289,14 @@ describe('☕️ lists', () => {
 
 function validList(list, expectedList) {
 	list.should.be.a('object')
-	expect(list).to.include.all.keys('_id', 'title', 'board', 'color', 'dateAdded', 'dateUpdated')
+	expect(list).to.include.all.keys('_id', 'title', 'board', 'color', 'createdAt', 'updatedAt')
 
 	expect(list._id).to.be.a('string')
 	expect(list.title).to.be.a('string')
 	expect(list.board).to.be.a('string')
 	expect(list.color).to.be.a('string')
-	expect(list.dateAdded).to.be.a('string')
-	expect(list.dateUpdated).to.be.a('string')
+	expect(list.createdAt).to.be.a('string')
+	expect(list.updatedAt).to.be.a('string')
 
 	if (expectedList) {
 		expect(list.title).to.equal(expectedList.title)

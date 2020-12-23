@@ -321,8 +321,8 @@ function validCard(card, expectedCard) {
 		'time',
 		'members',
 		'labels',
-		'dateAdded',
-		'dateUpdated'
+		'createdAt',
+		'updatedAt'
 	)
 
 	expect(card._id).to.be.a('string')
@@ -331,8 +331,8 @@ function validCard(card, expectedCard) {
 	expect(card.time).to.be.a('number')
 	expect(card.members).to.be.a('array')
 	expect(card.labels).to.be.a('array')
-	expect(card.dateAdded).to.be.a('string')
-	expect(card.dateUpdated).to.be.a('string')
+	expect(card.createdAt).to.be.a('string')
+	expect(card.updatedAt).to.be.a('string')
 
 	if (expectedCard) {
 		expect(card.list).to.equal(expectedCard.list)
