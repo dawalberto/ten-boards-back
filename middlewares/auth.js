@@ -15,17 +15,4 @@ const verifyToken = (req, res, next) => {
 	})
 }
 
-const verifyUser = (req, res, next) => {
-	const id = req.params.id
-	const loggedId = req.user._id
-
-	if (id !== loggedId) {
-		return res.status(401).json({
-			message: 'unauthorized',
-		})
-	}
-
-	next()
-}
-
-module.exports = { verifyToken, verifyUser }
+module.exports = { verifyToken }

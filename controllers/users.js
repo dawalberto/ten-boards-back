@@ -15,25 +15,15 @@ const get = (req, res) => {
 	})
 }
 
-const getById = (req, res) => {
-	const userId = req.params.id
-
-	User.findById(userId, (error, userDB) => {
-		if (error) {
-			return res.status(500).json({
-				error,
-			})
-		}
-
-		if (!userDB) {
-			return res.status(500).json({
-				message: `no user found with id ${userId}`,
-			})
-		}
-
-		return res.json({
-			user: userDB,
+const getUserLogged = (req, res) => {
+	if (!req.user) {
+		return res.status(500).json({
+			message: 'user not found',
 		})
+	}
+
+	return res.json({
+		user: req.user,
 	})
 }
 
@@ -121,4 +111,4 @@ const getAvatarByUserName = async (userName) => {
 	return response.data
 }
 
-module.exports = { get, getById, post, login, getListMembersObject, getUserObject }
+module.exports = { get, getUserLogged, post, login, getListMembersObject, getUserObject }
