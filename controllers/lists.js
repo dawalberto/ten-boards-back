@@ -84,4 +84,8 @@ const getListsFromBoardId = async (boardId) => {
 	return lists
 }
 
-module.exports = { post, put, remove, getListsFromBoardId }
+const getListByIdSync = async (listId) => {
+	return await List.findById(listId)
+}
+
+module.exports = { post, put, remove, getListsFromBoardId, getListByIdSync }
