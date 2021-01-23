@@ -65,6 +65,7 @@ const put = (req, res) => {
 			}
 
 			if (card.time >= 0) {
+				card.time = +card.time
 				await updateTotalTimeBoard(req.boardId, cardDB.time, card.time)
 			}
 
