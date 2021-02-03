@@ -1,5 +1,6 @@
 const Card = require('../database/models/card')
 const Board = require('../database/models/board')
+const List = require('../database/models/list')
 const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const post = (req, res) => {
@@ -79,12 +80,15 @@ const put = (req, res) => {
 const remove = (req, res) => {
 	const cardId = req.params.id
 
-	Card.deleteOne({ _id: cardId }, (error, deleted) => {
+	Card.findByIdAndDelete(cardId, async (error, cardDeleted) => {
 		if (error) {
 			return res.status(500).json({
 				errors: error.errors,
 			})
 		}
+
+		const boardCard = await getBoardByCard(cardDeleted)
+		await updateTotalTimeBoard(boardCard._id, cardDeleted.time, 0)
 
 		return res.status(200).json({
 			message: 'card deleted',
@@ -100,6 +104,12 @@ const updateTotalTimeBoard = async (boardId, cardDBTime, cardTime) => {
 
 const getCardsFromListId = async (listId) => {
 	return await Card.find({ list: listId })
+}
+
+const getBoardByCard = async (card) => {
+	const listDB = await List.findById(card.list)
+	const boardDB = await Board.findById(listDB.board)
+	return boardDB
 }
 
 module.exports = { post, put, remove, getCardsFromListId }
