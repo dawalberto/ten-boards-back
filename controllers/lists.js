@@ -1,5 +1,5 @@
 const List = require('../database/models/list')
-const { getCardsFromListId } = require('./cards')
+const { getCardsFromListId, removeCardsByList } = require('./cards')
 const { deleteUndefinedPropsOfObject } = require('./utilities')
 
 const post = (req, res) => {
@@ -56,12 +56,14 @@ const put = (req, res) => {
 const remove = (req, res) => {
 	const listId = req.params.id
 
-	List.deleteOne({ _id: listId }, (error, deleted) => {
+	List.findByIdAndDelete(listId, async (error, listDeleted) => {
 		if (error) {
 			return res.status(500).json({
 				errors: error.errors,
 			})
 		}
+
+		await removeCardsByList(listDeleted)
 
 		return res.status(200).json({
 			message: 'list deleted',

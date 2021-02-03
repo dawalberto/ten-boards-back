@@ -112,4 +112,13 @@ const getBoardByCard = async (card) => {
 	return boardDB
 }
 
-module.exports = { post, put, remove, getCardsFromListId }
+const removeCardsByList = async (list) => {
+	const cards = await Card.find({ list: list._id })
+	const totalTimeCards = cards.reduce((totalTime, card) => {
+		return totalTime + card.time
+	}, 0)
+	await updateTotalTimeBoard(list.board, totalTimeCards, 0)
+	await Card.deleteMany({ list: list._id })
+}
+
+module.exports = { post, put, remove, getCardsFromListId, removeCardsByList }
